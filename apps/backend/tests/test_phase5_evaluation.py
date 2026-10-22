@@ -310,6 +310,8 @@ def test_split_leakage_detector_catches_collision():
 def test_benchmark_dataset_integrity():
     """Verify the real data/evaluation/benchmark_dataset_v1.json passes all validations."""
     benchmark_path = Path("data/evaluation/benchmark_dataset_v1.json")
+    if not benchmark_path.exists():
+        benchmark_path = Path(__file__).resolve().parents[3] / "data" / "evaluation" / "benchmark_dataset_v1.json"
     assert benchmark_path.exists(), "Benchmark dataset file must exist"
 
     dataset = load_benchmark_dataset(benchmark_path)

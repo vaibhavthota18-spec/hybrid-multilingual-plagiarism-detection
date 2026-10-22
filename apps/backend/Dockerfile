@@ -28,7 +28,7 @@ RUN groupadd -g 1000 appuser && \
     useradd -u 1000 -g appuser -s /bin/bash -m appuser
 
 # Copy build definition and install python dependencies
-COPY pyproject.toml alembic.ini ./
+COPY pyproject.toml alembic.ini README.md ./
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir .
 

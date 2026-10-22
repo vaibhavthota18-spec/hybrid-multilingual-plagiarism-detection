@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN groupadd -g 1000 appuser && \
     useradd -u 1000 -g appuser -s /bin/bash -m appuser
 
-COPY apps/backend/pyproject.toml apps/backend/alembic.ini ./
+COPY apps/backend/pyproject.toml apps/backend/alembic.ini apps/backend/README.md ./
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir .
 

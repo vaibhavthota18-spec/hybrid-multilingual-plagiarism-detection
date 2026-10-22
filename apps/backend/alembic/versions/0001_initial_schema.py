@@ -155,8 +155,8 @@ def upgrade() -> None:
             embedding vector(768) NOT NULL,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
-        CREATE INDEX idx_embeddings_doc ON embeddings(document_id);
     """)
+    op.execute("CREATE INDEX idx_embeddings_doc ON embeddings(document_id);")
 
     # 12. Analyses Table
     op.create_table(

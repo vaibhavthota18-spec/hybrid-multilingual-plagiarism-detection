@@ -39,9 +39,9 @@ def upgrade() -> None:
             text_hash VARCHAR(64) NOT NULL,
             created_at VARCHAR(64) NOT NULL
         );
-        CREATE INDEX IF NOT EXISTS idx_passage_emb_doc ON passage_embeddings(document_id);
-        CREATE INDEX IF NOT EXISTS idx_passage_emb_hash ON passage_embeddings(text_hash);
     """)
+    op.execute("CREATE INDEX IF NOT EXISTS idx_passage_emb_doc ON passage_embeddings(document_id);")
+    op.execute("CREATE INDEX IF NOT EXISTS idx_passage_emb_hash ON passage_embeddings(text_hash);")
 
     # Try creating HNSW index for cosine distance if supported by pgvector version
     try:

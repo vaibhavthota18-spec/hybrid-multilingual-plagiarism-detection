@@ -1,0 +1,888 @@
+openapi: 3.1.0
+info:
+  title: Hybrid AI-Powered Multilingual Plagiarism Detection API
+  version: 1.0.0
+  description: >
+    Production REST API specification for the Hybrid AI-Powered Multilingual Plagiarism 
+    Detection and Analysis System. Supports multi-format document ingestion, three comparison
+    modes (Direct, One-to-Many, Corpus Search), multilingual semantic and lexical matching 
+    across English, Hindi, and Telugu, human-in-the-loop review, and PDF report generation.
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local Development Environment
+  - url: https://api.plagiarism-platform.internal/api/v1
+    description: Staging Environment
+
+security:
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: System Health and Readiness Probe
+      operationId: getHealthStatus
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /documents:
+    post:
+      summary: Upload and Ingest a Document
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Document file to upload (PDF, DOCX, TXT, max 30 MB)
+                title:
+                  type: string
+                  description: Optional custom title for the document
+                language_hint:
+                  type: string
+                  enum: [en, hi, te, auto]
+                  default: auto
+      responses:
+        '201':
+          description: Document uploaded and scheduled for text extraction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentMetadata'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    get:
+      summary: List User's Uploaded Documents
+      operationId: listDocuments
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+      responses:
+        '200':
+          description: Paginated list of user documents
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - pagination
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DocumentMetadata'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationMetadata'
+
+  /documents/{document_id}:
+    parameters:
+      - name: document_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get Document Metadata & Extraction State
+      operationId: getDocument
+      responses:
+        '200':
+          description: Document metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentMetadata'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      summary: Hard Delete Document and Derived Data
+      operationId: deleteDocument
+      responses:
+        '204':
+          description: Document and all associated passages, vectors, and files permanently deleted
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /collections:
+    post:
+      summary: Create a Reference Collection (Corpus)
+      operationId: createCollection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 120
+                description:
+                  type: string
+                  maxLength: 1000
+                is_public_within_tenant:
+                  type: boolean
+                  default: false
+      responses:
+        '201':
+          description: Collection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
+    get:
+      summary: List Authorized Reference Collections
+      operationId: listCollections
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+      responses:
+        '200':
+          description: List of accessible reference collections
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - pagination
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Collection'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationMetadata'
+
+  /collections/{collection_id}:
+    parameters:
+      - name: collection_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get Collection Details
+      operationId: getCollection
+      responses:
+        '200':
+          description: Collection details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /collections/{collection_id}/documents:
+    parameters:
+      - name: collection_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Ingest Document into Reference Collection
+      operationId: addDocumentToCollection
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - license
+              properties:
+                file:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                author:
+                  type: string
+                license:
+                  type: string
+                  example: CC-BY-4.0
+      responses:
+        '202':
+          description: Document scheduled for corpus indexing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionTaskResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /analyses:
+    post:
+      summary: Create and Enqueue Similarity Analysis
+      operationId: createAnalysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnalysisRequest'
+      responses:
+        '202':
+          description: Analysis enqueued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisJobStatus'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+    get:
+      summary: List User Similarity Analyses
+      operationId: listAnalyses
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+      responses:
+        '200':
+          description: Paginated analyses list
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - pagination
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AnalysisSummary'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationMetadata'
+
+  /analyses/models/info:
+    get:
+      summary: Get Semantic AI Model Information
+      operationId: getModelInfo
+      responses:
+        '200':
+          description: Information about active dense vector embedding model
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /analyses/{analysis_id}:
+    parameters:
+      - name: analysis_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Retrieve Complete Analysis Results & Findings
+      operationId: getAnalysisResults
+      responses:
+        '200':
+          description: Full analysis findings and coverage report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResult'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /analyses/{analysis_id}/status:
+    parameters:
+      - name: analysis_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Poll Analysis Job Progress
+      operationId: getAnalysisStatus
+      responses:
+        '200':
+          description: Current job status and progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisJobStatus'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /analyses/{analysis_id}/cancel:
+    parameters:
+      - name: analysis_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Cancel In-Progress Analysis Job
+      operationId: cancelAnalysis
+      responses:
+        '200':
+          description: Analysis successfully cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisJobStatus'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
+  /analyses/{analysis_id}/report:
+    parameters:
+      - name: analysis_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: include_notes
+        in: query
+        schema:
+          type: boolean
+          default: true
+      - name: language
+        in: query
+        schema:
+          type: string
+          enum: [en, hi, te]
+          default: en
+    get:
+      summary: Download Official PDF Similarity Report
+      operationId: downloadAnalysisReport
+      responses:
+        '200':
+          description: PDF report binary stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /analyses/{analysis_id}/findings/{finding_id}/reviews:
+    parameters:
+      - name: analysis_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: finding_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Submit Human Review Label and Notes
+      operationId: submitFindingReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - review_label
+              properties:
+                review_label:
+                  type: string
+                  enum: [VALID_CITATION, SUSPECTED_PLAGIARISM, FALSE_POSITIVE, IGNORED]
+                notes:
+                  type: string
+                  maxLength: 2000
+      responses:
+        '200':
+          description: Review persisted and score recalculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResult'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    OffsetParam:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - timestamp
+        - database
+        - redis
+        - worker_pool
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+        database:
+          type: string
+          example: "connected"
+        redis:
+          type: string
+          example: "connected"
+        worker_pool:
+          type: string
+          example: "operational"
+
+    DocumentMetadata:
+      type: object
+      required:
+        - document_id
+        - filename
+        - mime_type
+        - sha256_hash
+        - file_size_bytes
+        - created_at
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        mime_type:
+          type: string
+        sha256_hash:
+          type: string
+        file_size_bytes:
+          type: integer
+        page_count:
+          type: integer
+        char_count:
+          type: integer
+        detected_language:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Collection:
+      type: object
+      required:
+        - collection_id
+        - name
+        - document_count
+        - created_at
+      properties:
+        collection_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        document_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    IngestionTaskResponse:
+      type: object
+      required:
+        - task_id
+        - document_id
+        - status
+      properties:
+        task_id:
+          type: string
+          format: uuid
+        document_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+
+    CreateAnalysisRequest:
+      type: object
+      required:
+        - submission_document_id
+        - mode
+      properties:
+        submission_document_id:
+          type: string
+          format: uuid
+        mode:
+          type: string
+          enum: [direct, one_to_many, corpus]
+        detection_mode:
+          type: string
+          enum: [lexical, semantic, hybrid]
+          default: hybrid
+        reference_document_id:
+          type: string
+          format: uuid
+          description: Required if mode is 'direct'
+        reference_document_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Required if mode is 'one_to_many'
+        collection_id:
+          type: string
+          format: uuid
+          description: Required if mode is 'corpus'
+        exclude_citations:
+          type: boolean
+          default: true
+        exclude_references:
+          type: boolean
+          default: true
+
+    AnalysisJobStatus:
+      type: object
+      required:
+        - job_id
+        - analysis_id
+        - status
+        - progress_percent
+        - created_at
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        analysis_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, processing, completed, failed, cancelled]
+        current_step:
+          type: string
+          example: "aligning_passages"
+        progress_percent:
+          type: integer
+          minimum: 0
+          maximum: 100
+        error_code:
+          type: string
+        error_message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+
+    SimilarityFinding:
+      type: object
+      required:
+        - finding_id
+        - category
+        - confidence
+        - submission_start_offset
+        - submission_end_offset
+        - submission_excerpt
+        - reference_document_id
+        - reference_source_title
+        - reference_start_offset
+        - reference_end_offset
+        - reference_excerpt
+      properties:
+        finding_id:
+          type: string
+          format: uuid
+        category:
+          type: string
+          enum: [exact_copy, near_exact_rewrite, paraphrase, potential_translation]
+        confidence:
+          type: string
+          enum: [high, moderate, low]
+        submission_start_offset:
+          type: integer
+          description: Canonical zero-based Unicode code-point start index
+        submission_end_offset:
+          type: integer
+          description: Canonical zero-based Unicode code-point end index
+        submission_excerpt:
+          type: string
+        reference_document_id:
+          type: string
+          format: uuid
+        reference_source_title:
+          type: string
+        reference_start_offset:
+          type: integer
+        reference_end_offset:
+          type: integer
+        reference_excerpt:
+          type: string
+        reference_page_number:
+          type: integer
+        lexical_similarity:
+          type: number
+        semantic_similarity:
+          type: number
+        is_quoted:
+          type: boolean
+        is_excluded:
+          type: boolean
+        language_pair:
+          type: string
+        model_name:
+          type: string
+
+    SourceBreakdown:
+      type: object
+      required:
+        - reference_document_id
+        - source_title
+        - matched_passage_count
+        - lexical_coverage_percent
+        - semantic_coverage_percent
+      properties:
+        reference_document_id:
+          type: string
+          format: uuid
+        source_title:
+          type: string
+        matched_passage_count:
+          type: integer
+        lexical_coverage_percent:
+          type: number
+        semantic_coverage_percent:
+          type: number
+
+    AnalysisResult:
+      type: object
+      required:
+        - analysis_id
+        - submission_document_id
+        - mode
+        - overall_lexical_coverage_percent
+        - overall_semantic_coverage_percent
+        - net_adjusted_score_percent
+        - findings
+        - sources
+      properties:
+        analysis_id:
+          type: string
+          format: uuid
+        submission_document_id:
+          type: string
+          format: uuid
+        mode:
+          type: string
+          enum: [direct, one_to_many, corpus]
+        detection_mode:
+          type: string
+          enum: [lexical, semantic, hybrid]
+          default: hybrid
+        overall_lexical_coverage_percent:
+          type: number
+        overall_semantic_coverage_percent:
+          type: number
+        net_adjusted_score_percent:
+          type: number
+        hybrid_evidence_coverage_percent:
+          type: number
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimilarityFinding'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceBreakdown'
+        model_metadata:
+          type: object
+
+    AnalysisSummary:
+      type: object
+      required:
+        - analysis_id
+        - submission_document_id
+        - mode
+        - status
+        - created_at
+      properties:
+        analysis_id:
+          type: string
+          format: uuid
+        submission_document_id:
+          type: string
+          format: uuid
+        mode:
+          type: string
+        detection_mode:
+          type: string
+          enum: [lexical, semantic, hybrid]
+          default: hybrid
+        status:
+          type: string
+        lexical_coverage:
+          type: number
+        semantic_coverage:
+          type: number
+        net_score:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    ReviewResult:
+      type: object
+      required:
+        - review_id
+        - finding_id
+        - review_label
+        - updated_net_adjusted_score
+      properties:
+        review_id:
+          type: string
+          format: uuid
+        finding_id:
+          type: string
+          format: uuid
+        review_label:
+          type: string
+        notes:
+          type: string
+        updated_net_adjusted_score:
+          type: number
+
+    PaginationMetadata:
+      type: object
+      required:
+        - total_count
+        - limit
+        - offset
+        - has_more
+      properties:
+        total_count:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        has_more:
+          type: boolean
+
+    ErrorEnvelope:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+            - status
+            - timestamp
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            status:
+              type: integer
+            timestamp:
+              type: string
+              format: date-time
+            request_id:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+
+  responses:
+    BadRequestError:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    ForbiddenError:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    NotFoundError:
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    PayloadTooLargeError:
+      description: Uploaded File Exceeds 30 MB
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    ValidationError:
+      description: Unprocessable Entity / Validation Failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'

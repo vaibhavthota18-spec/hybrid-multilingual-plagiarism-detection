@@ -1,0 +1,1892 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hybrid AI-Powered Multilingual Plagiarism Detection API",
+    "description": "Production REST API for multilingual plagiarism detection across English, Hindi, and Telugu.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "API Root Information",
+        "operationId": "root_info__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Root Info  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "System Health and Readiness Probe",
+        "description": "Returns live operational status of backend services and core dependencies:\nPostgreSQL database connection, Redis broker connection, and background worker queue.",
+        "operationId": "getHealthStatus",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Inspect Current Authenticated User Principal",
+        "description": "Verifies that the caller's JWT bearer token is valid and active,\nreturning the decoded UserPrincipal identity.",
+        "operationId": "get_current_user_profile_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPrincipal"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/admin-probe": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "RBAC Probe Endpoint (Admin Only)",
+        "description": "Demonstrates RBAC enforcement: accessible only to users with ADMIN role.",
+        "operationId": "admin_role_probe_api_v1_auth_admin_probe_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Admin Role Probe Api V1 Auth Admin Probe Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/documents": {
+      "post": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Upload and Ingest a Document",
+        "description": "Uploads a document to private storage, validates structural integrity,\nand initiates asynchronous text extraction and passage segmentation.",
+        "operationId": "uploadDocument",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sync_processing",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Process synchronously (used by tests/e2e)",
+              "default": false,
+              "title": "Sync Processing"
+            },
+            "description": "Process synchronously (used by tests/e2e)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_uploadDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Uploaddocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "List User's Uploaded Documents",
+        "description": "Lists uploaded documents belonging to the authenticated user.",
+        "operationId": "listDocuments",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Listdocuments"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{document_id}": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Get Document Metadata & Extraction State",
+        "description": "Retrieves document metadata, page counts, word counts, and extraction status.",
+        "operationId": "getDocument",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Getdocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Hard Delete Document and Derived Data",
+        "description": "Permanently deletes document file from private storage, passages, and database records.",
+        "operationId": "deleteDocument",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{document_id}/text": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Preview Extracted Document Text",
+        "description": "Retrieves raw extracted text and character metrics for UI preview.",
+        "operationId": "getDocumentTextPreview",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Getdocumenttextpreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{document_id}/passages": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "List Segmented Document Passages",
+        "description": "Retrieves deterministic passage segments and code-point offsets.",
+        "operationId": "getDocumentPassages",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Getdocumentpassages"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collections": {
+      "post": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "Create a Reference Collection (Corpus)",
+        "description": "Creates a new private reference collection for group-based plagiarism analysis.",
+        "operationId": "createCollection",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCollectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Createcollection"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "List Authorized Reference Collections",
+        "description": "Lists reference collections owned by or shared with the authenticated user.",
+        "operationId": "listCollections",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Listcollections"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collections/{collection_id}": {
+      "get": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "Get Collection Details",
+        "description": "Retrieves metadata and document statistics for a specific reference collection.",
+        "operationId": "getCollection",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Getcollection"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collections/{collection_id}/documents": {
+      "get": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "List Documents in Reference Collection",
+        "description": "Lists all source documents currently indexed within a reference collection.",
+        "operationId": "listCollectionDocuments",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Listcollectiondocuments"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "Add Document to Reference Collection",
+        "description": "Links an existing processed document into a reference collection.",
+        "operationId": "addDocumentToCollection",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddDocumentToCollectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Adddocumenttocollection"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/collections/{collection_id}/documents/{document_id}": {
+      "delete": {
+        "tags": [
+          "Collections"
+        ],
+        "summary": "Remove Document from Reference Collection",
+        "description": "Removes a document from a reference collection (does not delete the document itself).",
+        "operationId": "removeDocumentFromCollection",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comparisons/validate": {
+      "post": {
+        "tags": [
+          "Comparisons"
+        ],
+        "summary": "Validate Comparison Inputs and Check Phase 3 Readiness",
+        "description": "Validates selected submission and reference inputs across comparison modes:\n- Direct (1:1)\n- One-to-Many (1:N)\n- Corpus (1:Collection)\n\nEnsures all documents are processed and valid. Does NOT compute similarity (Phase 3 boundary).",
+        "operationId": "validateComparisonInputs",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateComparisonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Validatecomparisoninputs"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analyses": {
+      "post": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Create and Enqueue Similarity Analysis",
+        "operationId": "createAnalysis",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sync_processing",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Run analysis synchronously (useful for tests)",
+              "default": false,
+              "title": "Sync Processing"
+            },
+            "description": "Run analysis synchronously (useful for tests)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnalysisRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisJobStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "List User Similarity Analyses",
+        "operationId": "listAnalyses",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Listanalyses"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}": {
+      "get": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Retrieve Complete Analysis Results & Findings",
+        "operationId": "getAnalysisResults",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Delete an Analysis and Associated Findings",
+        "operationId": "deleteAnalysis",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/status": {
+      "get": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Poll Analysis Job Progress",
+        "operationId": "getAnalysisStatus",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisJobStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/cancel": {
+      "post": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Cancel In-Progress Analysis Job",
+        "operationId": "cancelAnalysis",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisJobStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/findings": {
+      "get": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Retrieve Findings for an Analysis",
+        "operationId": "getAnalysisFindings",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Analysis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimilarityFinding"
+                  },
+                  "title": "Response Getanalysisfindings"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyses/{analysis_id}/report": {
+      "get": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Get Analysis Summary Report",
+        "operationId": "getAnalysisReport",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "analysis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Analysis Id"
+            }
+          },
+          {
+            "name": "include_notes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Notes"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "en",
+              "title": "Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Getanalysisreport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddDocumentToCollectionRequest": {
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "title": "Document Id",
+            "description": "ID of existing uploaded document to link into collection"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document_id"
+        ],
+        "title": "AddDocumentToCollectionRequest"
+      },
+      "AnalysisJobStatus": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "analysis_id": {
+            "type": "string",
+            "title": "Analysis Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "current_step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Step"
+          },
+          "progress_percent": {
+            "type": "integer",
+            "title": "Progress Percent",
+            "default": 0
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "analysis_id",
+          "status",
+          "created_at"
+        ],
+        "title": "AnalysisJobStatus"
+      },
+      "AnalysisResult": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "title": "Analysis Id"
+          },
+          "submission_document_id": {
+            "type": "string",
+            "title": "Submission Document Id"
+          },
+          "submission_filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission Filename"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "completed"
+          },
+          "overall_lexical_coverage_percent": {
+            "type": "number",
+            "title": "Overall Lexical Coverage Percent",
+            "default": 0.0
+          },
+          "overall_semantic_coverage_percent": {
+            "type": "number",
+            "title": "Overall Semantic Coverage Percent",
+            "default": 0.0
+          },
+          "net_adjusted_score_percent": {
+            "type": "number",
+            "title": "Net Adjusted Score Percent",
+            "default": 0.0
+          },
+          "matched_source_count": {
+            "type": "integer",
+            "title": "Matched Source Count",
+            "default": 0
+          },
+          "total_findings_count": {
+            "type": "integer",
+            "title": "Total Findings Count",
+            "default": 0
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/SimilarityFinding"
+            },
+            "type": "array",
+            "title": "Findings",
+            "default": []
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceBreakdown"
+            },
+            "type": "array",
+            "title": "Sources",
+            "default": []
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "submission_document_id",
+          "mode"
+        ],
+        "title": "AnalysisResult"
+      },
+      "Body_uploadDocument": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "Document file to upload (PDF, DOCX, TXT)"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Optional custom title for the document"
+          },
+          "language_hint": {
+            "type": "string",
+            "title": "Language Hint",
+            "description": "Language hint: en, hi, te, auto",
+            "default": "auto"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_uploadDocument"
+      },
+      "CreateAnalysisRequest": {
+        "properties": {
+          "submission_document_id": {
+            "type": "string",
+            "title": "Submission Document Id",
+            "description": "UUID of the submission document"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Comparison mode: direct, one_to_many, or corpus"
+          },
+          "reference_document_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Document Id",
+            "description": "Required for direct mode"
+          },
+          "reference_document_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Document Ids",
+            "description": "Required for one_to_many mode"
+          },
+          "collection_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collection Id",
+            "description": "Required for corpus mode"
+          },
+          "exclude_citations": {
+            "type": "boolean",
+            "title": "Exclude Citations",
+            "description": "Exclude quoted and cited regions",
+            "default": true
+          },
+          "exclude_references": {
+            "type": "boolean",
+            "title": "Exclude References",
+            "description": "Exclude reference bibliography lists",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "submission_document_id",
+          "mode"
+        ],
+        "title": "CreateAnalysisRequest"
+      },
+      "CreateCollectionRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 3,
+            "title": "Name",
+            "description": "Collection name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Optional collection description"
+          },
+          "is_public_within_tenant": {
+            "type": "boolean",
+            "title": "Is Public Within Tenant",
+            "description": "Whether collection is visible to tenant peers",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "CreateCollectionRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthStatus": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "healthy",
+            "examples": [
+              "healthy"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "ISO-8601 formatted UTC timestamp"
+          },
+          "database": {
+            "type": "string",
+            "title": "Database",
+            "default": "connected",
+            "examples": [
+              "connected"
+            ]
+          },
+          "redis": {
+            "type": "string",
+            "title": "Redis",
+            "default": "connected",
+            "examples": [
+              "connected"
+            ]
+          },
+          "worker_pool": {
+            "type": "string",
+            "title": "Worker Pool",
+            "default": "operational",
+            "examples": [
+              "operational"
+            ]
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version",
+            "description": "API version",
+            "default": "0.1.0"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp"
+        ],
+        "title": "HealthStatus",
+        "description": "Matches contracts/openapi.yaml HealthStatus schema"
+      },
+      "SimilarityFinding": {
+        "properties": {
+          "finding_id": {
+            "type": "string",
+            "title": "Finding Id"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "confidence": {
+            "type": "string",
+            "title": "Confidence"
+          },
+          "submission_start_offset": {
+            "type": "integer",
+            "title": "Submission Start Offset"
+          },
+          "submission_end_offset": {
+            "type": "integer",
+            "title": "Submission End Offset"
+          },
+          "submission_excerpt": {
+            "type": "string",
+            "title": "Submission Excerpt"
+          },
+          "reference_document_id": {
+            "type": "string",
+            "title": "Reference Document Id"
+          },
+          "reference_source_title": {
+            "type": "string",
+            "title": "Reference Source Title"
+          },
+          "reference_start_offset": {
+            "type": "integer",
+            "title": "Reference Start Offset"
+          },
+          "reference_end_offset": {
+            "type": "integer",
+            "title": "Reference End Offset"
+          },
+          "reference_excerpt": {
+            "type": "string",
+            "title": "Reference Excerpt"
+          },
+          "reference_page_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Page Number",
+            "default": 1
+          },
+          "lexical_similarity": {
+            "type": "number",
+            "title": "Lexical Similarity",
+            "default": 1.0
+          },
+          "semantic_similarity": {
+            "type": "number",
+            "title": "Semantic Similarity",
+            "default": 0.0
+          },
+          "is_quoted": {
+            "type": "boolean",
+            "title": "Is Quoted",
+            "default": false
+          },
+          "is_excluded": {
+            "type": "boolean",
+            "title": "Is Excluded",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "finding_id",
+          "category",
+          "confidence",
+          "submission_start_offset",
+          "submission_end_offset",
+          "submission_excerpt",
+          "reference_document_id",
+          "reference_source_title",
+          "reference_start_offset",
+          "reference_end_offset",
+          "reference_excerpt"
+        ],
+        "title": "SimilarityFinding"
+      },
+      "SourceBreakdown": {
+        "properties": {
+          "reference_document_id": {
+            "type": "string",
+            "title": "Reference Document Id"
+          },
+          "source_title": {
+            "type": "string",
+            "title": "Source Title"
+          },
+          "matched_passage_count": {
+            "type": "integer",
+            "title": "Matched Passage Count"
+          },
+          "lexical_coverage_percent": {
+            "type": "number",
+            "title": "Lexical Coverage Percent"
+          },
+          "semantic_coverage_percent": {
+            "type": "number",
+            "title": "Semantic Coverage Percent",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "reference_document_id",
+          "source_title",
+          "matched_passage_count",
+          "lexical_coverage_percent"
+        ],
+        "title": "SourceBreakdown"
+      },
+      "UserPrincipal": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "STUDENT"
+          },
+          "institution_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Institution Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "email"
+        ],
+        "title": "UserPrincipal",
+        "description": "Authenticated user context available in request dependency injection."
+      },
+      "ValidateComparisonRequest": {
+        "properties": {
+          "submission_document_id": {
+            "type": "string",
+            "title": "Submission Document Id",
+            "description": "ID of candidate submission document"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Comparison mode: 'direct', 'one_to_many', or 'corpus'"
+          },
+          "reference_document_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Document Id",
+            "description": "Required for 'direct' mode"
+          },
+          "reference_document_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Document Ids",
+            "description": "Required for 'one_to_many' mode"
+          },
+          "collection_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collection Id",
+            "description": "Required for 'corpus' mode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "submission_document_id",
+          "mode"
+        ],
+        "title": "ValidateComparisonRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

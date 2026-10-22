@@ -1,0 +1,20 @@
+{
+  "dataset_version": "1.0.0",
+  "calibration_samples": 20,
+  "calibration_time_seconds": 5.27,
+  "calibrated_thresholds": {
+    "lexical": {
+      "lexical_coverage_threshold": 5.0
+    },
+    "semantic": {
+      "semantic_paraphrase_threshold": 0.82,
+      "semantic_translation_threshold": 0.8
+    },
+    "hybrid": {
+      "lexical_coverage_threshold": 15.0,
+      "semantic_paraphrase_threshold": 0.82,
+      "semantic_translation_threshold": 0.8,
+      "hybrid_score_threshold": 50.0
+    }
+  }
+}

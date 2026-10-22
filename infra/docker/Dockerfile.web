@@ -1,0 +1,26 @@
+# Production Multi-Stage Dockerfile for React Web Frontend
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY apps/web/package.json ./
+RUN npm install
+
+COPY apps/web/tsconfig.json apps/web/vite.config.ts apps/web/tailwind.config.js apps/web/postcss.config.js apps/web/index.html ./
+COPY apps/web/src ./src
+COPY apps/web/public ./public
+
+RUN npm run build
+
+FROM nginx:alpine
+
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=5s --retries=3 \
+    CMD wget -q -O - http://localhost:80/health || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

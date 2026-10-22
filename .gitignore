@@ -1,0 +1,132 @@
+# ==============================================================================
+# Git Ignore Configuration
+# Project: Hybrid AI-Powered Multilingual Plagiarism Detection and Analysis System
+# ==============================================================================
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.bak
+
+# Environment Variables & Secrets (MANDATORY: Never commit secrets)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+credentials.json
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node.js & Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+apps/web/dist/
+apps/web/dist-ssr/
+*.tsbuildinfo
+.eslintcache
+
+# Local Storage, Uploads, and Generated Reports (Private User Data)
+storage/uploads/
+storage/reports/
+storage/extracted/
+storage/temp/
+storage/private/
+storage/model_cache/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+storage/*.db
+storage/*.db-wal
+storage/*.db-shm
+*.pdf
+*.docx
+!evaluation/datasets/fixtures/**/*.pdf
+!evaluation/datasets/fixtures/**/*.docx
+!data/samples/**/*.pdf
+!data/samples/**/*.docx
+data/*.pdf
+data/*.html
+data/test_indic_*
+data/AOA_Syllabus_*
+
+# Model Weights, Cache, and Embeddings Artifacts
+models/weights/
+models/cache/
+*.onnx
+*.bin
+*.pt
+*.safetensors
+.cache/huggingface/
+.cache/torch/
+
+# Evaluation Datasets (Raw and proprietary splits)
+evaluation/datasets/raw/
+evaluation/datasets/embeddings_cache/
+evaluation/results/*.raw.json
+
+# Docker & Containers
+.docker/
+docker-compose.override.yml
+
+# IDE & Editor Configuration
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# Temporary Diagnostics & Local Scratches
+scratch/
+tmp/
+*.log
+prompt_*.txt
+apps/backend/storage/
+**/storage/*.db
+**/storage/*.db-wal
+**/storage/*.db-shm
+**/storage/private/
+**/storage/model_cache/

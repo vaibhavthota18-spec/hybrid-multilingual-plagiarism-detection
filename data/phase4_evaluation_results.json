@@ -1,0 +1,217 @@
+{
+  "model_name": "intfloat/multilingual-e5-small",
+  "device": "cpu",
+  "summary": {
+    "total_pairs": 20,
+    "tp": 11,
+    "tn": 6,
+    "fp": 3,
+    "fn": 0,
+    "accuracy": 0.85,
+    "precision": 0.7857,
+    "recall": 1.0,
+    "f1_score": 0.88
+  },
+  "pair_results": [
+    {
+      "pair_id": "PAIR-01",
+      "category": "paraphrase",
+      "languages": "en-en",
+      "cosine_similarity": 0.9169,
+      "threshold": 0.82,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-02",
+      "category": "paraphrase",
+      "languages": "en-en",
+      "cosine_similarity": 0.882,
+      "threshold": 0.82,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-03",
+      "category": "paraphrase",
+      "languages": "hi-hi",
+      "cosine_similarity": 0.8611,
+      "threshold": 0.82,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-04",
+      "category": "paraphrase",
+      "languages": "hi-hi",
+      "cosine_similarity": 0.8759,
+      "threshold": 0.82,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-05",
+      "category": "paraphrase",
+      "languages": "te-te",
+      "cosine_similarity": 0.8841,
+      "threshold": 0.82,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-06",
+      "category": "paraphrase",
+      "languages": "te-te",
+      "cosine_similarity": 0.8574,
+      "threshold": 0.82,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-07",
+      "category": "cross_lingual_translation",
+      "languages": "en-hi",
+      "cosine_similarity": 0.9059,
+      "threshold": 0.8,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-08",
+      "category": "cross_lingual_translation",
+      "languages": "hi-en",
+      "cosine_similarity": 0.9412,
+      "threshold": 0.8,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-09",
+      "category": "cross_lingual_translation",
+      "languages": "en-te",
+      "cosine_similarity": 0.8828,
+      "threshold": 0.8,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-10",
+      "category": "cross_lingual_translation",
+      "languages": "te-en",
+      "cosine_similarity": 0.8889,
+      "threshold": 0.8,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-11",
+      "category": "cross_lingual_translation",
+      "languages": "hi-te",
+      "cosine_similarity": 0.9454,
+      "threshold": 0.8,
+      "ground_truth": true,
+      "predicted": true,
+      "verdict": "TP (HIT)"
+    },
+    {
+      "pair_id": "PAIR-12",
+      "category": "hard_negative",
+      "languages": "en-en",
+      "cosine_similarity": 0.819,
+      "threshold": 0.82,
+      "ground_truth": false,
+      "predicted": false,
+      "verdict": "TN (CORRECT REJECTION)"
+    },
+    {
+      "pair_id": "PAIR-13",
+      "category": "hard_negative",
+      "languages": "en-en",
+      "cosine_similarity": 0.8225,
+      "threshold": 0.82,
+      "ground_truth": false,
+      "predicted": true,
+      "verdict": "FP (FALSE ALARM)"
+    },
+    {
+      "pair_id": "PAIR-14",
+      "category": "hard_negative",
+      "languages": "hi-hi",
+      "cosine_similarity": 0.8267,
+      "threshold": 0.82,
+      "ground_truth": false,
+      "predicted": true,
+      "verdict": "FP (FALSE ALARM)"
+    },
+    {
+      "pair_id": "PAIR-15",
+      "category": "hard_negative",
+      "languages": "te-te",
+      "cosine_similarity": 0.872,
+      "threshold": 0.82,
+      "ground_truth": false,
+      "predicted": true,
+      "verdict": "FP (FALSE ALARM)"
+    },
+    {
+      "pair_id": "PAIR-16",
+      "category": "hard_negative_cross_lingual",
+      "languages": "en-hi",
+      "cosine_similarity": 0.7949,
+      "threshold": 0.8,
+      "ground_truth": false,
+      "predicted": false,
+      "verdict": "TN (CORRECT REJECTION)"
+    },
+    {
+      "pair_id": "PAIR-17",
+      "category": "unrelated",
+      "languages": "en-en",
+      "cosine_similarity": 0.7114,
+      "threshold": 0.82,
+      "ground_truth": false,
+      "predicted": false,
+      "verdict": "TN (CORRECT REJECTION)"
+    },
+    {
+      "pair_id": "PAIR-18",
+      "category": "unrelated",
+      "languages": "en-hi",
+      "cosine_similarity": 0.7249,
+      "threshold": 0.8,
+      "ground_truth": false,
+      "predicted": false,
+      "verdict": "TN (CORRECT REJECTION)"
+    },
+    {
+      "pair_id": "PAIR-19",
+      "category": "unrelated",
+      "languages": "en-te",
+      "cosine_similarity": 0.7542,
+      "threshold": 0.8,
+      "ground_truth": false,
+      "predicted": false,
+      "verdict": "TN (CORRECT REJECTION)"
+    },
+    {
+      "pair_id": "PAIR-20",
+      "category": "unrelated",
+      "languages": "hi-te",
+      "cosine_similarity": 0.7421,
+      "threshold": 0.8,
+      "ground_truth": false,
+      "predicted": false,
+      "verdict": "TN (CORRECT REJECTION)"
+    }
+  ]
+}

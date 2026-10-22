@@ -1,0 +1,1598 @@
+{
+  "metadata": {
+    "dataset_id": "BENCHMARK-MULTILINGUAL-V1",
+    "version": "1.0.0",
+    "evaluation_timestamp": "2026-10-14T15:32:10Z",
+    "total_examples": 40,
+    "calibration_examples": 20,
+    "held_out_examples": 20
+  },
+  "thresholds": {
+    "lexical": {
+      "lexical_coverage_threshold": 5.0
+    },
+    "semantic": {
+      "semantic_paraphrase_threshold": 0.82,
+      "semantic_translation_threshold": 0.8
+    },
+    "hybrid": {
+      "lexical_coverage_threshold": 15.0,
+      "semantic_paraphrase_threshold": 0.82,
+      "semantic_translation_threshold": 0.8,
+      "hybrid_score_threshold": 50.0
+    }
+  },
+  "calibration_results": {
+    "lexical": {
+      "split_name": "calibration",
+      "detector_mode": "lexical",
+      "dataset_version": "1.0.0",
+      "timestamp": "2026-10-14T15:32:03.433181+00:00",
+      "thresholds": {
+        "lexical_coverage_threshold": 5.0
+      },
+      "classification": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 9,
+        "fn": 10,
+        "total": 20,
+        "precision": 1.0,
+        "recall": 0.0909,
+        "f1": 0.1667,
+        "specificity": 1.0,
+        "fpr": 0.0,
+        "fnr": 0.9091,
+        "balanced_accuracy": 0.5454,
+        "confusion_matrix": {
+          "tp": 1,
+          "fp": 0,
+          "tn": 9,
+          "fn": 10
+        },
+        "precision_wilson_ci": {
+          "point_estimate": 1.0,
+          "lower_bound": 0.2065,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95
+        },
+        "recall_wilson_ci": {
+          "point_estimate": 0.0909,
+          "lower_bound": 0.0162,
+          "upper_bound": 0.3774,
+          "confidence_level": 0.95
+        },
+        "f1_wilson_ci": {
+          "point_estimate": 0.1667,
+          "lower_bound": 0.03,
+          "upper_bound": 0.548,
+          "confidence_level": 0.95
+        }
+      },
+      "localization": {
+        "char_iou": 0.0902,
+        "token_iou": 0.0909,
+        "span_precision": 0.0909,
+        "span_recall": 0.0902,
+        "span_f1": 0.0905,
+        "mean_boundary_error_chars": 0.09,
+        "evaluated_positive_pairs": 11
+      },
+      "bootstrap_ci": {
+        "f1": {
+          "metric_name": "f1",
+          "point_estimate": 0.1667,
+          "lower_bound": 0.0,
+          "upper_bound": 0.4617,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "precision": {
+          "metric_name": "precision",
+          "point_estimate": 1.0,
+          "lower_bound": 0.0,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "recall": {
+          "metric_name": "recall",
+          "point_estimate": 0.0909,
+          "lower_bound": 0.0,
+          "upper_bound": 0.3002,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        }
+      },
+      "per_language_breakdown": {
+        "en-en": {
+          "precision": 1.0,
+          "recall": 0.3333,
+          "f1": 0.5,
+          "sample_count": 8.0
+        },
+        "hi-hi": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 3.0
+        },
+        "te-te": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 3.0
+        },
+        "hi-en": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 2.0
+        },
+        "en-hi": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 1.0
+        },
+        "te-en": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 1.0
+        },
+        "te-hi": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 2.0
+        }
+      },
+      "per_category_breakdown": {
+        "exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 1.0
+        },
+        "paraphrase": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 5.0
+        },
+        "near_exact": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 1.0
+        },
+        "translation": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 4.0
+        },
+        "hard_negative": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 7.0
+        },
+        "unrelated_control": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 2.0
+        }
+      },
+      "error_records": [
+        {
+          "example_id": "CALIB-02",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "en-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "Modern deep learning architectures transformed natural language processing by utilizing attention layers and self-superv",
+          "source_excerpt": "Deep neural networks have revolutionized natural language understanding through transformer attention mechanisms and sel",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-03",
+          "plagiarism_type": "near_exact",
+          "language_pair": "en-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "Preliminary research shows promising results. However, plant chloroplasts harness the power of sunlight to generate vita",
+          "source_excerpt": "Photosynthesis in green plants converts light energy into chemical energy stored in carbohydrate molecules such as gluco",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-04",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "hi-hi",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "अनुसंधान में दूसरों के विचारों को बिना श्रेय दिए उपयोग करना शैक्षणिक सत्यनिष्ठा और आचार संहिता का सीधा हनन है।",
+          "source_excerpt": "साहित्यिक चोरी शैक्षणिक अखंडता और अनुसंधान के मानकों का उल्लंघन करती है।",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-05",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "hi-hi",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "धरती के औसत तापमान में बढ़ोत्तरी से ग्लेशियरों का पिघलना पर्यावरण संकट को और अधिक गंभीर बना रहा है।",
+          "source_excerpt": "जलवायु परिवर्तन के कारण वैश्विक तापमान में निरंतर वृद्धि हो रही है, जिससे हिमनद तेजी से पिघल रहे हैं।",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-06",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "te-te",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "నేటి సాంకేతిక మార్పులకు ఆర్టిఫిషియల్ ఇంటెలిజెన్స్ మరియు మెషిన్ లెర్నింగ్ కీలక చోదక శక్తులుగా మారాయి.",
+          "source_excerpt": "కృత్రిమ మేధస్సు మరియు యంత్ర అభ్యాసం ఆధునిక సాంకేతిక విప్లవానికి పునాదిగా నిలుస్తున్నాయి.",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-07",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "te-te",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "విశ్వవిద్యాలయాల గౌరవం మరియు వైజ్ఞానిక ప్రమాణాలు పరిశోధనలో చూపించే నైతిక విలువలపైనే ఆధారపడి ఉంటాయి.",
+          "source_excerpt": "పరిశోధనా రంగంలో నిజాయితీ విద్యాసంస్థల ప్రతిష్టకు అత్యంత ఆవశ్యకమైన ప్రమాణం.",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-08",
+          "plagiarism_type": "translation",
+          "language_pair": "hi-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "क्वांटम कंप्यूटिंग जटिल गणितीय समस्याओं को हल करने के लिए क्वांटम सुपरपोजिशन और एंटैंगलमेंट का उपयोग करती है।",
+          "source_excerpt": "Quantum computing utilizes quantum superposition and entanglement to solve complex mathematical problems.",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-09",
+          "plagiarism_type": "translation",
+          "language_pair": "en-hi",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "Natural language processing enables computational systems to comprehend and generate human languages effectively.",
+          "source_excerpt": "प्राकृतिक भाषा प्रसंस्करण कंप्यूटरों को मानव भाषा को समझने और उत्पन्न करने में सक्षम बनाता है।",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-10",
+          "plagiarism_type": "translation",
+          "language_pair": "te-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "సౌర ఫలకాలు ఫోటోవోల్టాయిక్ కణాల ద్వారా సూర్యకాంతిని పునరుత్పాదక విద్యుత్ శక్తిగా మారుస్తాయి.",
+          "source_excerpt": "Solar panels convert incident sunlight into renewable electrical energy using photovoltaic cells.",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "CALIB-11",
+          "plagiarism_type": "translation",
+          "language_pair": "te-hi",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "సాఫ్ట్‌వేర్ ఇంజనీరింగ్‌లో కోడ్ నాణ్యత మరియు నిరంతర పరీక్షలు చాలా కీలకమైన ప్రక్రియలు.",
+          "source_excerpt": "सॉफ़्टवेयर इंजीनियरिंग में कोड की गुणवत्ता और परीक्षण अत्यंत महत्वपूर्ण प्रक्रियाएं हैं।",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        }
+      ]
+    },
+    "semantic": {
+      "split_name": "calibration",
+      "detector_mode": "semantic",
+      "dataset_version": "1.0.0",
+      "timestamp": "2026-10-14T15:32:03.919044+00:00",
+      "thresholds": {
+        "semantic_paraphrase_threshold": 0.82,
+        "semantic_translation_threshold": 0.8
+      },
+      "classification": {
+        "tp": 11,
+        "fp": 6,
+        "tn": 3,
+        "fn": 0,
+        "total": 20,
+        "precision": 0.6471,
+        "recall": 1.0,
+        "f1": 0.7857,
+        "specificity": 0.3333,
+        "fpr": 0.6667,
+        "fnr": 0.0,
+        "balanced_accuracy": 0.6666,
+        "confusion_matrix": {
+          "tp": 11,
+          "fp": 6,
+          "tn": 3,
+          "fn": 0
+        },
+        "precision_wilson_ci": {
+          "point_estimate": 0.6471,
+          "lower_bound": 0.413,
+          "upper_bound": 0.8269,
+          "confidence_level": 0.95
+        },
+        "recall_wilson_ci": {
+          "point_estimate": 1.0,
+          "lower_bound": 0.7412,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95
+        },
+        "f1_wilson_ci": {
+          "point_estimate": 0.7857,
+          "lower_bound": 0.5304,
+          "upper_bound": 0.9052,
+          "confidence_level": 0.95
+        }
+      },
+      "localization": {
+        "char_iou": 0.9695,
+        "token_iou": 0.9752,
+        "span_precision": 0.9695,
+        "span_recall": 1.0,
+        "span_f1": 0.9817,
+        "mean_boundary_error_chars": 5.0,
+        "evaluated_positive_pairs": 11
+      },
+      "bootstrap_ci": {
+        "f1": {
+          "metric_name": "f1",
+          "point_estimate": 0.7857,
+          "lower_bound": 0.56,
+          "upper_bound": 0.9232,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "precision": {
+          "metric_name": "precision",
+          "point_estimate": 0.6471,
+          "lower_bound": 0.3889,
+          "upper_bound": 0.8573,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "recall": {
+          "metric_name": "recall",
+          "point_estimate": 1.0,
+          "lower_bound": 1.0,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        }
+      },
+      "per_language_breakdown": {
+        "en-en": {
+          "precision": 0.4286,
+          "recall": 1.0,
+          "f1": 0.6,
+          "sample_count": 8.0
+        },
+        "hi-hi": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "te-te": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "hi-en": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 2.0
+        },
+        "en-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 1.0
+        },
+        "te-en": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 1.0
+        },
+        "te-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 2.0
+        }
+      },
+      "per_category_breakdown": {
+        "exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 1.0
+        },
+        "paraphrase": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 5.0
+        },
+        "near_exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 1.0
+        },
+        "translation": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 4.0
+        },
+        "hard_negative": {
+          "accuracy": 0.0714,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 7.0
+        },
+        "unrelated_control": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 2.0
+        }
+      },
+      "error_records": [
+        {
+          "example_id": "CALIB-12",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 83.43,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "Unsupervised machine learning methods discover hidden clusters and patterns in raw data without any human labels.",
+          "source_excerpt": "Supervised machine learning algorithms require large labeled datasets to achieve high classification accuracy.",
+          "analysis": "False positive in semantic mode: score 83.43 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "CALIB-13",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 82.86,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "Non-relational document databases offer flexible horizontal scalability and eventual consistency across distributed node",
+          "source_excerpt": "Relational databases enforce strict ACID transactional consistency using structured schema definitions.",
+          "analysis": "False positive in semantic mode: score 82.86 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "CALIB-14",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 86.63,
+          "error_type": "false_positive",
+          "failure_mode": "negation_shift",
+          "suspicious_excerpt": "The administration strictly prohibited unauthorized software downloads on all workstations without exception.",
+          "source_excerpt": "The administration explicitly permitted authorized software downloads on all workstations under supervision.",
+          "analysis": "False positive in semantic mode: score 86.63 exceeded threshold. Cause: negation_shift."
+        },
+        {
+          "example_id": "CALIB-15",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 82.37,
+          "error_type": "false_positive",
+          "failure_mode": "numerical_shift",
+          "suspicious_excerpt": "The census reported 15,200 active industrial facilities in the district during the 2018 fiscal assessment.",
+          "source_excerpt": "The census reported 84,900 active commercial entities in the province during the 2024 economic survey.",
+          "analysis": "False positive in semantic mode: score 82.37 exceeded threshold. Cause: numerical_shift."
+        },
+        {
+          "example_id": "CALIB-16",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "hi-hi",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 82.19,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "दक्षिण भारत का तटीय क्षेत्र हिंद महासागर और उष्णकटिबंधीय जलवायु से समृद्ध है।",
+          "source_excerpt": "भारत का उत्तरी भाग हिमालय पर्वत श्रृंखलाओं और बर्फीली चोटियों से घिरा हुआ है।",
+          "analysis": "False positive in semantic mode: score 82.19 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "CALIB-17",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "te-te",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 86.55,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "శీతాకాలంలో చల్లని గాలులు మరియు పొగమంచు వాతావరణాన్ని ఆహ్లాదకరంగా మారుస్తాయి.",
+          "source_excerpt": "వేసవి కాలంలో తీవ్రమైన ఎండలు మరియు ఉష్ణోగ్రతలు ప్రజలను ఇబ్బందులకు గురిచేస్తాయి.",
+          "analysis": "False positive in semantic mode: score 86.55 exceeded threshold. Cause: domain_adjacent_lexicon."
+        }
+      ]
+    },
+    "hybrid": {
+      "split_name": "calibration",
+      "detector_mode": "hybrid",
+      "dataset_version": "1.0.0",
+      "timestamp": "2026-10-14T15:32:04.387150+00:00",
+      "thresholds": {
+        "lexical_coverage_threshold": 15.0,
+        "semantic_paraphrase_threshold": 0.82,
+        "semantic_translation_threshold": 0.8,
+        "hybrid_score_threshold": 50.0
+      },
+      "classification": {
+        "tp": 11,
+        "fp": 6,
+        "tn": 3,
+        "fn": 0,
+        "total": 20,
+        "precision": 0.6471,
+        "recall": 1.0,
+        "f1": 0.7857,
+        "specificity": 0.3333,
+        "fpr": 0.6667,
+        "fnr": 0.0,
+        "balanced_accuracy": 0.6666,
+        "confusion_matrix": {
+          "tp": 11,
+          "fp": 6,
+          "tn": 3,
+          "fn": 0
+        },
+        "precision_wilson_ci": {
+          "point_estimate": 0.6471,
+          "lower_bound": 0.413,
+          "upper_bound": 0.8269,
+          "confidence_level": 0.95
+        },
+        "recall_wilson_ci": {
+          "point_estimate": 1.0,
+          "lower_bound": 0.7412,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95
+        },
+        "f1_wilson_ci": {
+          "point_estimate": 0.7857,
+          "lower_bound": 0.5304,
+          "upper_bound": 0.9052,
+          "confidence_level": 0.95
+        }
+      },
+      "localization": {
+        "char_iou": 0.9688,
+        "token_iou": 0.9752,
+        "span_precision": 0.9695,
+        "span_recall": 0.9993,
+        "span_f1": 0.9813,
+        "mean_boundary_error_chars": 5.09,
+        "evaluated_positive_pairs": 11
+      },
+      "bootstrap_ci": {
+        "f1": {
+          "metric_name": "f1",
+          "point_estimate": 0.7857,
+          "lower_bound": 0.56,
+          "upper_bound": 0.9232,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "precision": {
+          "metric_name": "precision",
+          "point_estimate": 0.6471,
+          "lower_bound": 0.3889,
+          "upper_bound": 0.8573,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "recall": {
+          "metric_name": "recall",
+          "point_estimate": 1.0,
+          "lower_bound": 1.0,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        }
+      },
+      "per_language_breakdown": {
+        "en-en": {
+          "precision": 0.4286,
+          "recall": 1.0,
+          "f1": 0.6,
+          "sample_count": 8.0
+        },
+        "hi-hi": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "te-te": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "hi-en": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 2.0
+        },
+        "en-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 1.0
+        },
+        "te-en": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 1.0
+        },
+        "te-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 2.0
+        }
+      },
+      "per_category_breakdown": {
+        "exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 1.0
+        },
+        "paraphrase": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 5.0
+        },
+        "near_exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 1.0
+        },
+        "translation": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 4.0
+        },
+        "hard_negative": {
+          "accuracy": 0.0714,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 7.0
+        },
+        "unrelated_control": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 2.0
+        }
+      },
+      "error_records": [
+        {
+          "example_id": "CALIB-12",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 50.06,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "Unsupervised machine learning methods discover hidden clusters and patterns in raw data without any human labels.",
+          "source_excerpt": "Supervised machine learning algorithms require large labeled datasets to achieve high classification accuracy.",
+          "analysis": "False positive in hybrid mode: score 50.06 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "CALIB-13",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 49.71,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "Non-relational document databases offer flexible horizontal scalability and eventual consistency across distributed node",
+          "source_excerpt": "Relational databases enforce strict ACID transactional consistency using structured schema definitions.",
+          "analysis": "False positive in hybrid mode: score 49.71 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "CALIB-14",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 51.98,
+          "error_type": "false_positive",
+          "failure_mode": "negation_shift",
+          "suspicious_excerpt": "The administration strictly prohibited unauthorized software downloads on all workstations without exception.",
+          "source_excerpt": "The administration explicitly permitted authorized software downloads on all workstations under supervision.",
+          "analysis": "False positive in hybrid mode: score 51.98 exceeded threshold. Cause: negation_shift."
+        },
+        {
+          "example_id": "CALIB-15",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 49.42,
+          "error_type": "false_positive",
+          "failure_mode": "numerical_shift",
+          "suspicious_excerpt": "The census reported 15,200 active industrial facilities in the district during the 2018 fiscal assessment.",
+          "source_excerpt": "The census reported 84,900 active commercial entities in the province during the 2024 economic survey.",
+          "analysis": "False positive in hybrid mode: score 49.42 exceeded threshold. Cause: numerical_shift."
+        },
+        {
+          "example_id": "CALIB-16",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "hi-hi",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 49.31,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "दक्षिण भारत का तटीय क्षेत्र हिंद महासागर और उष्णकटिबंधीय जलवायु से समृद्ध है।",
+          "source_excerpt": "भारत का उत्तरी भाग हिमालय पर्वत श्रृंखलाओं और बर्फीली चोटियों से घिरा हुआ है।",
+          "analysis": "False positive in hybrid mode: score 49.31 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "CALIB-17",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "te-te",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 51.93,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "శీతాకాలంలో చల్లని గాలులు మరియు పొగమంచు వాతావరణాన్ని ఆహ్లాదకరంగా మారుస్తాయి.",
+          "source_excerpt": "వేసవి కాలంలో తీవ్రమైన ఎండలు మరియు ఉష్ణోగ్రతలు ప్రజలను ఇబ్బందులకు గురిచేస్తాయి.",
+          "analysis": "False positive in hybrid mode: score 51.93 exceeded threshold. Cause: domain_adjacent_lexicon."
+        }
+      ]
+    }
+  },
+  "held_out_results": {
+    "lexical": {
+      "split_name": "held_out_evaluation",
+      "detector_mode": "lexical",
+      "dataset_version": "1.0.0",
+      "timestamp": "2026-10-14T15:32:04.889352+00:00",
+      "thresholds": {
+        "lexical_coverage_threshold": 5.0
+      },
+      "classification": {
+        "tp": 2,
+        "fp": 2,
+        "tn": 7,
+        "fn": 9,
+        "total": 20,
+        "precision": 0.5,
+        "recall": 0.1818,
+        "f1": 0.2666,
+        "specificity": 0.7778,
+        "fpr": 0.2222,
+        "fnr": 0.8182,
+        "balanced_accuracy": 0.4798,
+        "confusion_matrix": {
+          "tp": 2,
+          "fp": 2,
+          "tn": 7,
+          "fn": 9
+        },
+        "precision_wilson_ci": {
+          "point_estimate": 0.5,
+          "lower_bound": 0.15,
+          "upper_bound": 0.85,
+          "confidence_level": 0.95
+        },
+        "recall_wilson_ci": {
+          "point_estimate": 0.1818,
+          "lower_bound": 0.0514,
+          "upper_bound": 0.477,
+          "confidence_level": 0.95
+        },
+        "f1_wilson_ci": {
+          "point_estimate": 0.2666,
+          "lower_bound": 0.0766,
+          "upper_bound": 0.6111,
+          "confidence_level": 0.95
+        }
+      },
+      "localization": {
+        "char_iou": 0.18,
+        "token_iou": 0.1818,
+        "span_precision": 0.1818,
+        "span_recall": 0.18,
+        "span_f1": 0.1809,
+        "mean_boundary_error_chars": 0.18,
+        "evaluated_positive_pairs": 11
+      },
+      "bootstrap_ci": {
+        "f1": {
+          "metric_name": "f1",
+          "point_estimate": 0.2666,
+          "lower_bound": 0.0,
+          "upper_bound": 0.5556,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "precision": {
+          "metric_name": "precision",
+          "point_estimate": 0.5,
+          "lower_bound": 0.0,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "recall": {
+          "metric_name": "recall",
+          "point_estimate": 0.1818,
+          "lower_bound": 0.0,
+          "upper_bound": 0.4444,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        }
+      },
+      "per_language_breakdown": {
+        "hi-hi": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6667,
+          "sample_count": 3.0
+        },
+        "te-te": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6667,
+          "sample_count": 3.0
+        },
+        "en-en": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 7.0
+        },
+        "en-hi": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 2.0
+        },
+        "te-en": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 3.0
+        },
+        "te-hi": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 1.0
+        },
+        "en-te": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 1.0
+        }
+      },
+      "per_category_breakdown": {
+        "exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 2.0
+        },
+        "near_exact": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 1.0
+        },
+        "paraphrase": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 4.0
+        },
+        "translation": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 4.0
+        },
+        "hard_negative": {
+          "accuracy": 0.3333,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 6.0
+        },
+        "unrelated_control": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 3.0
+        }
+      },
+      "error_records": [
+        {
+          "example_id": "HELD-03",
+          "plagiarism_type": "near_exact",
+          "language_pair": "en-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "Under international intellectual property statutes, creators retain proprietary exclusive rights over their original wor",
+          "source_excerpt": "Under international intellectual property treaties, authors maintain proprietary exclusive rights over their original cr",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-04",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "en-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "Distributed consensus protocols guarantee uniform node replication and prevent conflicting transactions across unreliabl",
+          "source_excerpt": "Consensus algorithms in decentralized architectures ensure fault-tolerant state agreement among participating servers de",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-05",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "hi-hi",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "नवीकरणीय ऊर्जा स्रोतों को अपनाकर हम कार्बन उत्सर्जन में भारी कमी ला सकते हैं तथा पर्यावरण को स्वच्छ रख सकते हैं।",
+          "source_excerpt": "सौर और पवन जैसी स्वच्छ ऊर्जा प्रणालियों के विस्तार से ग्रीनहाउस गैसों का निष्कासन घटता है तथा वायु प्रदूषण नियंत्रित होत",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-06",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "te-te",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "టెలిస్కోపుల ద్వారా ఖగోళ శాస్త్రవేత్తలు విశ్వంలోని సుదూర నక్షత్ర మండలాలు మరియు కృష్ణ బిలాల గమనాన్ని గుర్తిస్తారు.",
+          "source_excerpt": "అంతరిక్ష పరిశోధనలలో శక్తివంతమైన దుర్భిణుల సహాయంతో సుదూర గెలాక్సీల నిర్మాణం మరియు బ్లాక్ హోల్స్ గురించి అధ్యయనం చేస్తారు.",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-07",
+          "plagiarism_type": "translation",
+          "language_pair": "en-hi",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "The immune system generates specialized antibodies to identify and neutralize pathogenic viruses invading the bloodstrea",
+          "source_excerpt": "प्रतिरक्षा प्रणाली रक्तप्रवाह में प्रवेश करने वाले रोगजनक विषाणुओं की पहचान करने और उन्हें निष्क्रिय करने के लिए विशिष्ट",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-08",
+          "plagiarism_type": "translation",
+          "language_pair": "te-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "సముద్రపు ఆటుపోట్ల ఆధారంగా ఉత్పత్తి చేసే టైడల్ ఎనర్జీ నిరంతర విద్యుత్ సరఫరాకు ఎంతో అనుకూలమైన మార్గం.",
+          "source_excerpt": "Tidal energy generated from oceanic marine currents offers a highly predictable and continuous clean electricity supply.",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-09",
+          "plagiarism_type": "translation",
+          "language_pair": "te-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "ఆప్టికల్ ఫైబర్ కేబుల్స్ కాంతి తరంగాల సంపూర్ణ అంతర్గత పరావర్తనం ద్వారా డేటాను అత్యంత వేగంగా బదిలీ చేస్తాయి.",
+          "source_excerpt": "Optical fiber cables transmit high-speed communications through total internal reflection of modulated laser light beams",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-10",
+          "plagiarism_type": "translation",
+          "language_pair": "te-hi",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "cross_lingual_representation_gap",
+          "suspicious_excerpt": "రహదారుల నిర్మాణంలో నాణ్యతా ప్రమాణాలు ప్రయాణికుల భద్రతను గణనీయంగా పెంచుతాయి.",
+          "source_excerpt": "सड़क निर्माण में उच्च गुणवत्ता के मानक यात्रियों की सुरक्षा सुनिश्चित करने में सहायक सिद्ध होते हैं।",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-11",
+          "plagiarism_type": "paraphrase",
+          "language_pair": "en-en",
+          "ground_truth": true,
+          "predicted": false,
+          "score": 0.0,
+          "error_type": "false_negative",
+          "failure_mode": "lexical_miss",
+          "suspicious_excerpt": "The committee established that ethical conduct requires transparency. Furthermore, researchers must publicly archive all",
+          "source_excerpt": "Scientific honesty mandates that scholars make all primary experimental findings and empirical data accessible to the wi",
+          "analysis": "False negative in lexical mode: score 0.0 below threshold."
+        },
+        {
+          "example_id": "HELD-12",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 63.64,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "The protocol explicitly prohibited external peripheral connections during secure firmware updates.",
+          "source_excerpt": "The protocol explicitly permitted external peripheral connections during secure firmware updates.",
+          "analysis": "False positive in lexical mode: score 63.64 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "HELD-13",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 44.44,
+          "error_type": "false_positive",
+          "failure_mode": "numerical_shift",
+          "suspicious_excerpt": "The regional GDP expanded by 8.4% during the third quarter of 2023 due to strong manufacturing outputs.",
+          "source_excerpt": "The regional GDP contracted by 2.1% during the third quarter of 2023 due to weak manufacturing outputs.",
+          "analysis": "False positive in lexical mode: score 44.44 exceeded threshold. Cause: numerical_shift."
+        }
+      ]
+    },
+    "semantic": {
+      "split_name": "held_out_evaluation",
+      "detector_mode": "semantic",
+      "dataset_version": "1.0.0",
+      "timestamp": "2026-10-14T15:32:09.945502+00:00",
+      "thresholds": {
+        "semantic_paraphrase_threshold": 0.82,
+        "semantic_translation_threshold": 0.8
+      },
+      "classification": {
+        "tp": 11,
+        "fp": 4,
+        "tn": 5,
+        "fn": 0,
+        "total": 20,
+        "precision": 0.7333,
+        "recall": 1.0,
+        "f1": 0.8461,
+        "specificity": 0.5556,
+        "fpr": 0.4444,
+        "fnr": 0.0,
+        "balanced_accuracy": 0.7778,
+        "confusion_matrix": {
+          "tp": 11,
+          "fp": 4,
+          "tn": 5,
+          "fn": 0
+        },
+        "precision_wilson_ci": {
+          "point_estimate": 0.7333,
+          "lower_bound": 0.4805,
+          "upper_bound": 0.891,
+          "confidence_level": 0.95
+        },
+        "recall_wilson_ci": {
+          "point_estimate": 1.0,
+          "lower_bound": 0.7412,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95
+        },
+        "f1_wilson_ci": {
+          "point_estimate": 0.8461,
+          "lower_bound": 0.583,
+          "upper_bound": 0.9424,
+          "confidence_level": 0.95
+        }
+      },
+      "localization": {
+        "char_iou": 0.9537,
+        "token_iou": 0.9569,
+        "span_precision": 0.9537,
+        "span_recall": 1.0,
+        "span_f1": 0.9689,
+        "mean_boundary_error_chars": 7.55,
+        "evaluated_positive_pairs": 11
+      },
+      "bootstrap_ci": {
+        "f1": {
+          "metric_name": "f1",
+          "point_estimate": 0.8461,
+          "lower_bound": 0.6364,
+          "upper_bound": 0.9631,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "precision": {
+          "metric_name": "precision",
+          "point_estimate": 0.7333,
+          "lower_bound": 0.4667,
+          "upper_bound": 0.9287,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "recall": {
+          "metric_name": "recall",
+          "point_estimate": 1.0,
+          "lower_bound": 1.0,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        }
+      },
+      "per_language_breakdown": {
+        "hi-hi": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "te-te": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "en-en": {
+          "precision": 0.6,
+          "recall": 1.0,
+          "f1": 0.75,
+          "sample_count": 7.0
+        },
+        "en-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 2.0
+        },
+        "te-en": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 3.0
+        },
+        "te-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 1.0
+        },
+        "en-te": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 1.0
+        }
+      },
+      "per_category_breakdown": {
+        "exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 2.0
+        },
+        "near_exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 1.0
+        },
+        "paraphrase": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 4.0
+        },
+        "translation": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 4.0
+        },
+        "hard_negative": {
+          "accuracy": 0.1666,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 6.0
+        },
+        "unrelated_control": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 3.0
+        }
+      },
+      "error_records": [
+        {
+          "example_id": "HELD-12",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 89.65,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "The protocol explicitly prohibited external peripheral connections during secure firmware updates.",
+          "source_excerpt": "The protocol explicitly permitted external peripheral connections during secure firmware updates.",
+          "analysis": "False positive in semantic mode: score 89.65 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "HELD-13",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 87.63,
+          "error_type": "false_positive",
+          "failure_mode": "numerical_shift",
+          "suspicious_excerpt": "The regional GDP expanded by 8.4% during the third quarter of 2023 due to strong manufacturing outputs.",
+          "source_excerpt": "The regional GDP contracted by 2.1% during the third quarter of 2023 due to weak manufacturing outputs.",
+          "analysis": "False positive in semantic mode: score 87.63 exceeded threshold. Cause: numerical_shift."
+        },
+        {
+          "example_id": "HELD-15",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "hi-hi",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 83.4,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "थार मरुस्थल में अत्यधिक शुष्क जलवायु और रेतीले टीले वनस्पतियों के विकास को गंभीर रूप से सीमित करते हैं।",
+          "source_excerpt": "सुंदरबन के मैंग्रोव दलदल में खारे पानी और उच्च आर्द्रता के कारण जैव विविधता अत्यंत समृद्ध है।",
+          "analysis": "False positive in semantic mode: score 83.4 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "HELD-16",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "te-te",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 82.61,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "వైర్‌లెస్ సెల్యులార్ నెట్‌వర్క్‌లు బేస్ స్టేషన్ల ద్వారా మొబైల్ పరికరాలకు రేడియో తరంగాలను ప్రసారం చేస్తాయి.",
+          "source_excerpt": "ఆప్టికల్ ఫైబర్ కేబుల్స్ భూగర్భ పైపుల ద్వారా లేజర్ సంకేతాలను ఎక్కువ దూరాలకు చేరవేస్తాయి.",
+          "analysis": "False positive in semantic mode: score 82.61 exceeded threshold. Cause: domain_adjacent_lexicon."
+        }
+      ]
+    },
+    "hybrid": {
+      "split_name": "held_out_evaluation",
+      "detector_mode": "hybrid",
+      "dataset_version": "1.0.0",
+      "timestamp": "2026-10-14T15:32:10.448336+00:00",
+      "thresholds": {
+        "lexical_coverage_threshold": 15.0,
+        "semantic_paraphrase_threshold": 0.82,
+        "semantic_translation_threshold": 0.8,
+        "hybrid_score_threshold": 50.0
+      },
+      "classification": {
+        "tp": 11,
+        "fp": 4,
+        "tn": 5,
+        "fn": 0,
+        "total": 20,
+        "precision": 0.7333,
+        "recall": 1.0,
+        "f1": 0.8461,
+        "specificity": 0.5556,
+        "fpr": 0.4444,
+        "fnr": 0.0,
+        "balanced_accuracy": 0.7778,
+        "confusion_matrix": {
+          "tp": 11,
+          "fp": 4,
+          "tn": 5,
+          "fn": 0
+        },
+        "precision_wilson_ci": {
+          "point_estimate": 0.7333,
+          "lower_bound": 0.4805,
+          "upper_bound": 0.891,
+          "confidence_level": 0.95
+        },
+        "recall_wilson_ci": {
+          "point_estimate": 1.0,
+          "lower_bound": 0.7412,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95
+        },
+        "f1_wilson_ci": {
+          "point_estimate": 0.8461,
+          "lower_bound": 0.583,
+          "upper_bound": 0.9424,
+          "confidence_level": 0.95
+        }
+      },
+      "localization": {
+        "char_iou": 0.9519,
+        "token_iou": 0.9569,
+        "span_precision": 0.9537,
+        "span_recall": 0.9982,
+        "span_f1": 0.968,
+        "mean_boundary_error_chars": 7.73,
+        "evaluated_positive_pairs": 11
+      },
+      "bootstrap_ci": {
+        "f1": {
+          "metric_name": "f1",
+          "point_estimate": 0.8461,
+          "lower_bound": 0.6364,
+          "upper_bound": 0.9631,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "precision": {
+          "metric_name": "precision",
+          "point_estimate": 0.7333,
+          "lower_bound": 0.4667,
+          "upper_bound": 0.9287,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        },
+        "recall": {
+          "metric_name": "recall",
+          "point_estimate": 1.0,
+          "lower_bound": 1.0,
+          "upper_bound": 1.0,
+          "confidence_level": 0.95,
+          "bootstrap_samples": 1000
+        }
+      },
+      "per_language_breakdown": {
+        "hi-hi": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "te-te": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "sample_count": 3.0
+        },
+        "en-en": {
+          "precision": 0.6,
+          "recall": 1.0,
+          "f1": 0.75,
+          "sample_count": 7.0
+        },
+        "en-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 2.0
+        },
+        "te-en": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 3.0
+        },
+        "te-hi": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "sample_count": 1.0
+        },
+        "en-te": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "sample_count": 1.0
+        }
+      },
+      "per_category_breakdown": {
+        "exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 2.0
+        },
+        "near_exact": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 1.0
+        },
+        "paraphrase": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 4.0
+        },
+        "translation": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "recall": 1.0,
+          "sample_count": 4.0
+        },
+        "hard_negative": {
+          "accuracy": 0.1666,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 6.0
+        },
+        "unrelated_control": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "sample_count": 3.0
+        }
+      },
+      "error_records": [
+        {
+          "example_id": "HELD-12",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 79.24,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "The protocol explicitly prohibited external peripheral connections during secure firmware updates.",
+          "source_excerpt": "The protocol explicitly permitted external peripheral connections during secure firmware updates.",
+          "analysis": "False positive in hybrid mode: score 79.24 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "HELD-13",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "en-en",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 70.35,
+          "error_type": "false_positive",
+          "failure_mode": "numerical_shift",
+          "suspicious_excerpt": "The regional GDP expanded by 8.4% during the third quarter of 2023 due to strong manufacturing outputs.",
+          "source_excerpt": "The regional GDP contracted by 2.1% during the third quarter of 2023 due to weak manufacturing outputs.",
+          "analysis": "False positive in hybrid mode: score 70.35 exceeded threshold. Cause: numerical_shift."
+        },
+        {
+          "example_id": "HELD-15",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "hi-hi",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 50.04,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "थार मरुस्थल में अत्यधिक शुष्क जलवायु और रेतीले टीले वनस्पतियों के विकास को गंभीर रूप से सीमित करते हैं।",
+          "source_excerpt": "सुंदरबन के मैंग्रोव दलदल में खारे पानी और उच्च आर्द्रता के कारण जैव विविधता अत्यंत समृद्ध है।",
+          "analysis": "False positive in hybrid mode: score 50.04 exceeded threshold. Cause: domain_adjacent_lexicon."
+        },
+        {
+          "example_id": "HELD-16",
+          "plagiarism_type": "hard_negative",
+          "language_pair": "te-te",
+          "ground_truth": false,
+          "predicted": true,
+          "score": 49.57,
+          "error_type": "false_positive",
+          "failure_mode": "domain_adjacent_lexicon",
+          "suspicious_excerpt": "వైర్‌లెస్ సెల్యులార్ నెట్‌వర్క్‌లు బేస్ స్టేషన్ల ద్వారా మొబైల్ పరికరాలకు రేడియో తరంగాలను ప్రసారం చేస్తాయి.",
+          "source_excerpt": "ఆప్టికల్ ఫైబర్ కేబుల్స్ భూగర్భ పైపుల ద్వారా లేజర్ సంకేతాలను ఎక్కువ దూరాలకు చేరవేస్తాయి.",
+          "analysis": "False positive in hybrid mode: score 49.57 exceeded threshold. Cause: domain_adjacent_lexicon."
+        }
+      ]
+    }
+  },
+  "retrieval_benchmarks": {
+    "lexical": {
+      "recall_at_1": 0.6364,
+      "recall_at_5": 0.6364,
+      "recall_at_10": 0.9091,
+      "mrr": 0.6724,
+      "map_score": 0.6724,
+      "mean_latency_ms": 4.71,
+      "candidate_pool_size": 20,
+      "queries_evaluated": 11
+    },
+    "semantic": {
+      "recall_at_1": 0.8182,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.8939,
+      "map_score": 0.8939,
+      "mean_latency_ms": 0.15,
+      "candidate_pool_size": 20,
+      "queries_evaluated": 11
+    },
+    "hybrid": {
+      "recall_at_1": 0.8182,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.8939,
+      "map_score": 0.8939,
+      "mean_latency_ms": 0.03,
+      "candidate_pool_size": 20,
+      "queries_evaluated": 11
+    }
+  }
+}

@@ -1,0 +1,5 @@
+A Comparative Study on Hybrid Plagiarism Detection in Higher Education.
+Academic dishonesty poses a significant challenge in modern educational institutions.
+The integration of lexical n-gram fingerprinting and semantic dense vectors enables cross-lingual candidate retrieval.
+This paper evaluates the performance of character winnowing and transformer embeddings across varied linguistic corpuses.
+Experimental results demonstrate high precision in identifying exact copy and near-exact rewrites.

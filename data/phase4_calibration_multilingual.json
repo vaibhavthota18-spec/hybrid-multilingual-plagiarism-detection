@@ -1,0 +1,231 @@
+{
+  "metadata": {
+    "dataset_name": "Phase 4 Multilingual Calibration and Evaluation Benchmark",
+    "description": "Gold-standard paired passages across English, Hindi, and Telugu for evaluating dense semantic similarity, cross-lingual retrieval, and threshold calibration.",
+    "version": "1.0.0",
+    "languages": ["en", "hi", "te"],
+    "total_pairs": 20
+  },
+  "pairs": [
+    {
+      "pair_id": "PAIR-01",
+      "category": "paraphrase",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "en",
+      "language_2": "en",
+      "text_1": "Deep neural networks have revolutionized natural language understanding through transformer attention mechanisms and self-supervised pretraining.",
+      "text_2": "Modern deep learning architectures transformed natural language processing by utilizing attention layers and self-supervised training strategies.",
+      "rationale": "Direct structural paraphrase with synonymous substitutions in English."
+    },
+    {
+      "pair_id": "PAIR-02",
+      "category": "paraphrase",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "en",
+      "language_2": "en",
+      "text_1": "Photosynthesis in green plants converts light energy into chemical energy stored in carbohydrate molecules such as glucose.",
+      "text_2": "Plant chloroplasts harness the power of sunlight to generate vital organic sugars and chemical energy stores.",
+      "rationale": "Biological concept paraphrase describing the exact same physiological pathway."
+    },
+    {
+      "pair_id": "PAIR-03",
+      "category": "paraphrase",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "hi",
+      "language_2": "hi",
+      "text_1": "साहित्यिक चोरी शैक्षणिक अखंडता और अनुसंधान के मानकों का उल्लंघन करती है।",
+      "text_2": "अनुसंधान में दूसरों के विचारों को बिना श्रेय दिए उपयोग करना शैक्षणिक सत्यनिष्ठा और आचार संहिता का सीधा हनन है।",
+      "rationale": "Hindi academic integrity definition paraphrase with synonymous Devanagari phraseology."
+    },
+    {
+      "pair_id": "PAIR-04",
+      "category": "paraphrase",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "hi",
+      "language_2": "hi",
+      "text_1": "जलवायु परिवर्तन के कारण वैश्विक तापमान में निरंतर वृद्धि हो रही है, जिससे हिमनद तेजी से पिघल रहे हैं।",
+      "text_2": "धरती के औसत तापमान में बढ़ोत्तरी से ग्लेशियरों का पिघलना पर्यावरण संकट को और अधिक गंभीर बना रहा है।",
+      "rationale": "Hindi climate change cause-and-effect paraphrase."
+    },
+    {
+      "pair_id": "PAIR-05",
+      "category": "paraphrase",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "te",
+      "language_2": "te",
+      "text_1": "కృత్రిమ మేధస్సు మరియు యంత్ర అభ్యాసం ఆధునిక సాంకేతిక విప్లవానికి పునాదిగా నిలుస్తున్నాయి.",
+      "text_2": "నేటి సాంకేతిక మార్పులకు ఆర్టిఫిషియల్ ఇంటెలిజెన్స్ మరియు మెషిన్ లెర్నింగ్ కీలక చోదక శక్తులుగా మారాయి.",
+      "rationale": "Telugu artificial intelligence technological revolution paraphrase."
+    },
+    {
+      "pair_id": "PAIR-06",
+      "category": "paraphrase",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "te",
+      "language_2": "te",
+      "text_1": "పరిశోధనా రంగంలో నిజాయితీ విద్యాసంస్థల ప్రతిష్టకు అత్యంత ఆవశ్యకమైన ప్రమాణం.",
+      "text_2": "విశ్వవిద్యాలయాల గౌరవం మరియు వైజ్ఞానిక ప్రమాణాలు పరిశోధనలో చూపించే నైతిక విలువలపైనే ఆధారపడి ఉంటాయి.",
+      "rationale": "Telugu academic ethics and research credibility paraphrase."
+    },
+    {
+      "pair_id": "PAIR-07",
+      "category": "cross_lingual_translation",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "en",
+      "language_2": "hi",
+      "text_1": "Quantum computing utilizes quantum superposition and entanglement to solve complex mathematical problems.",
+      "text_2": "क्वांटम कंप्यूटिंग जटिल गणितीय समस्याओं को हल करने के लिए क्वांटम सुपरपोजिशन और एंटैंगलमेंट का उपयोग करती है।",
+      "rationale": "English source directly translated into formal Hindi with Devanagari terminology."
+    },
+    {
+      "pair_id": "PAIR-08",
+      "category": "cross_lingual_translation",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "hi",
+      "language_2": "en",
+      "text_1": "प्राकृतिक भाषा प्रसंस्करण कंप्यूटरों को मानव भाषा को समझने और उत्पन्न करने में सक्षम बनाता है।",
+      "text_2": "Natural language processing enables computational systems to comprehend and generate human languages effectively.",
+      "rationale": "Hindi source translated into standard academic English."
+    },
+    {
+      "pair_id": "PAIR-09",
+      "category": "cross_lingual_translation",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "en",
+      "language_2": "te",
+      "text_1": "Solar panels convert incident sunlight into renewable electrical energy using photovoltaic cells.",
+      "text_2": "సౌర ఫలకాలు ఫోటోవోల్టాయిక్ కణాల ద్వారా సూర్యకాంతిని పునరుత్పాదక విద్యుత్ శక్తిగా మారుస్తాయి.",
+      "rationale": "English source translated into Telugu technical prose."
+    },
+    {
+      "pair_id": "PAIR-10",
+      "category": "cross_lingual_translation",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "te",
+      "language_2": "en",
+      "text_1": "డేటాబేస్ ఇండెక్సింగ్ ద్వారా సమాచారాన్ని వేగంగా శోధించడం మరియు తిరిగి పొందడం సాధ్యమవుతుంది.",
+      "text_2": "Database indexing enables rapid querying, search efficiency, and data retrieval across large storage volumes.",
+      "rationale": "Telugu source translated into computer science English terminology."
+    },
+    {
+      "pair_id": "PAIR-11",
+      "category": "cross_lingual_translation",
+      "type": "positive",
+      "ground_truth_plagiarized": true,
+      "language_1": "hi",
+      "language_2": "te",
+      "text_1": "सॉफ़्टवेयर इंजीनियरिंग में कोड की गुणवत्ता और परीक्षण अत्यंत महत्वपूर्ण प्रक्रियाएं हैं।",
+      "text_2": "సాఫ్ట్‌వేర్ ఇంజనీరింగ్‌లో కోడ్ నాణ్యత మరియు నిరంతర పరీక్షలు చాలా కీలకమైన ప్రక్రియలు.",
+      "rationale": "Hindi technical sentence directly aligned with equivalent Telugu sentence."
+    },
+    {
+      "pair_id": "PAIR-12",
+      "category": "hard_negative",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "en",
+      "language_2": "en",
+      "text_1": "Supervised machine learning algorithms require large labeled datasets to achieve high classification accuracy.",
+      "text_2": "Unsupervised machine learning methods discover hidden clusters and patterns in raw data without any human labels.",
+      "rationale": "Same machine learning domain and similar technical vocabulary, but contrary conceptual definitions."
+    },
+    {
+      "pair_id": "PAIR-13",
+      "category": "hard_negative",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "en",
+      "language_2": "en",
+      "text_1": "Relational databases enforce strict ACID transactional consistency using structured schema definitions.",
+      "text_2": "Non-relational document databases offer flexible horizontal scalability and eventual consistency across distributed nodes.",
+      "rationale": "Contrasting database architectures sharing storage keywords but representing antithetical design goals."
+    },
+    {
+      "pair_id": "PAIR-14",
+      "category": "hard_negative",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "hi",
+      "language_2": "hi",
+      "text_1": "भारत का उत्तरी भाग हिमालय पर्वत श्रृंखलाओं और बर्फीली चोटियों से घिरा हुआ है।",
+      "text_2": "दक्षिण भारत का तटीय क्षेत्र हिंद महासागर और उष्णकटिबंधीय जलवायु से समृद्ध है।",
+      "rationale": "Geographical descriptions of India with contrasting regional focus (North vs South)."
+    },
+    {
+      "pair_id": "PAIR-15",
+      "category": "hard_negative",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "te",
+      "language_2": "te",
+      "text_1": "వేసవి కాలంలో తీవ్రమైన ఎండలు మరియు ఉష్ణోగ్రతలు ప్రజలను ఇబ్బందులకు గురిచేస్తాయి.",
+      "text_2": "శీతాకాలంలో చల్లని గాలులు మరియు పొగమంచు వాతావరణాన్ని ఆహ్లాదకరంగా మారుస్తాయి.",
+      "rationale": "Seasonal climate descriptions (Summer vs Winter) in Telugu."
+    },
+    {
+      "pair_id": "PAIR-16",
+      "category": "hard_negative_cross_lingual",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "en",
+      "language_2": "hi",
+      "text_1": "Cardiovascular exercise strengthens heart muscle contractions and boosts circulatory efficiency.",
+      "text_2": "संतुलित शाकाहारी भोजन शरीर को आवश्यक विटामिन, खनिज और पोषक तत्व प्रदान करता है।",
+      "rationale": "Health domain text, but physical cardiovascular training vs nutritional dietary intake."
+    },
+    {
+      "pair_id": "PAIR-17",
+      "category": "unrelated",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "en",
+      "language_2": "en",
+      "text_1": "Convolutional neural networks extract hierarchical spatial representations from raster images.",
+      "text_2": "Artisanal sourdough bread requires precise water temperature, whole grain flour, and overnight fermentation.",
+      "rationale": "Completely disjoint domains: computer vision vs culinary baking."
+    },
+    {
+      "pair_id": "PAIR-18",
+      "category": "unrelated",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "en",
+      "language_2": "hi",
+      "text_1": "Modern aircraft utilize fly-by-wire computer controls and redundant hydraulic actuators for flight stabilization.",
+      "text_2": "प्राचीन काल में भारतीय शास्त्रीय संगीत और नृत्य कला का विकास मंदिरों के प्रांगण में हुआ था।",
+      "rationale": "Aeronautical engineering in English vs ancient classical Indian music in Hindi."
+    },
+    {
+      "pair_id": "PAIR-19",
+      "category": "unrelated",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "en",
+      "language_2": "te",
+      "text_1": "Microprocessor cache coherence protocols maintain data consistency across multi-core CPU architectures.",
+      "text_2": "ఆంధ్రప్రదేశ్ రాష్ట్రంలో గోదావరి మరియు కృష్ణా నదుల తీరప్రాంతాలు వరి సాగుకు అత్యంత ప్రసిద్ధి చెందినవి.",
+      "rationale": "Computer CPU hardware architecture in English vs river valley agriculture in Telugu."
+    },
+    {
+      "pair_id": "PAIR-20",
+      "category": "unrelated",
+      "type": "negative",
+      "ground_truth_plagiarized": false,
+      "language_1": "hi",
+      "language_2": "te",
+      "text_1": "सौर ऊर्जा उत्पादन के लिए सिलिकॉन वेफर निर्माण में अत्यधिक शुद्धता की आवश्यकता होती है।",
+      "text_2": "సాంప్రదాయ తెలుగు సాహిత్యంలో నన్నయ, తిక్కన, ఎర్రనలను కవిత్రయంగా గౌరవిస్తారు.",
+      "rationale": "Silicon solar wafer metallurgy in Hindi vs classical epic Telugu poetry in Telugu."
+    }
+  ]
+}

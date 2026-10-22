@@ -1,0 +1,135 @@
+version: "3.8"
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: plagiarism_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: plagiarism_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password_change_in_production
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d plagiarism_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - plagiarism_net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: plagiarism_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - plagiarism_net
+
+  api:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: plagiarism_api
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: development
+      DEBUG: "true"
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: plagiarism_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password_change_in_production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET_KEY: dev_jwt_secret_key_minimum_32_characters_for_entropy_compliance
+      JWT_ALGORITHM: HS256
+      STORAGE_ROOT: /app/storage
+      CORS_ORIGINS: '["http://localhost:3000","http://localhost:5173","http://localhost:80"]'
+    ports:
+      - "8000:8000"
+    volumes:
+      - storage_volume:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - plagiarism_net
+
+  worker:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    command: ["python", "-m", "plagiarism.jobs.worker"]
+    container_name: plagiarism_worker
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: development
+      DEBUG: "true"
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: plagiarism_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password_change_in_production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      STORAGE_ROOT: /app/storage
+    volumes:
+      - storage_volume:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - plagiarism_net
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: plagiarism_web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:80/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - plagiarism_net
+
+volumes:
+  postgres_data:
+    name: plagiarism_postgres_data
+  redis_data:
+    name: plagiarism_redis_data
+  storage_volume:
+    name: plagiarism_storage_volume
+
+networks:
+  plagiarism_net:
+    driver: bridge

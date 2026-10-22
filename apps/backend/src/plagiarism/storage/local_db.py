@@ -4,18 +4,21 @@ Survives backend restart, enforces foreign keys, and isolates local metadata.
 """
 
 import json
+import logging
 import sqlite3
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from plagiarism.core.config import get_settings
 
+logger = logging.getLogger(__name__)
+
 
 def utcnow_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 class LocalMetadataRepository:
@@ -23,7 +26,7 @@ class LocalMetadataRepository:
     SQLite-backed local development adapter for document metadata,
     extracted passages, and reference collections.
     """
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         settings = get_settings()
         self.db_path = db_path or settings.LOCAL_SQLITE_PATH
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -299,8 +302,8 @@ class LocalMetadataRepository:
         storage_path: str,
         file_size_bytes: int,
         status: str = "queued",
-        title: Optional[str] = None
-    ) -> Dict[str, Any]:
+        title: str | None = None
+    ) -> dict[str, Any]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -357,7 +360,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_document(self, document_id: str) -> Optional[Dict[str, Any]]:
+    def get_document(self, document_id: str) -> dict[str, Any] | None:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -378,10 +381,10 @@ class LocalMetadataRepository:
 
     def list_documents(
         self,
-        owner_user_id: Optional[str] = None,
+        owner_user_id: str | None = None,
         limit: int = 20,
         offset: int = 0
-    ) -> Tuple[List[Dict[str, Any]], int]:
+    ) -> tuple[list[dict[str, Any]], int]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -442,7 +445,7 @@ class LocalMetadataRepository:
 
     # --- Passages Operations ---
 
-    def insert_passages(self, passages: List[Dict[str, Any]]) -> None:
+    def insert_passages(self, passages: list[dict[str, Any]]) -> None:
         if not passages:
             return
         with self._lock:
@@ -475,7 +478,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_passages(self, document_id: str) -> List[Dict[str, Any]]:
+    def get_passages(self, document_id: str) -> list[dict[str, Any]]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -496,9 +499,9 @@ class LocalMetadataRepository:
         collection_id: str,
         name: str,
         owner_user_id: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         is_public_within_tenant: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -517,7 +520,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_collection(self, collection_id: str) -> Optional[Dict[str, Any]]:
+    def get_collection(self, collection_id: str) -> dict[str, Any] | None:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -534,10 +537,10 @@ class LocalMetadataRepository:
 
     def list_collections(
         self,
-        owner_user_id: Optional[str] = None,
+        owner_user_id: str | None = None,
         limit: int = 20,
         offset: int = 0
-    ) -> Tuple[List[Dict[str, Any]], int]:
+    ) -> tuple[list[dict[str, Any]], int]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -613,7 +616,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def list_collection_documents(self, collection_id: str) -> List[Dict[str, Any]]:
+    def list_collection_documents(self, collection_id: str) -> list[dict[str, Any]]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -638,7 +641,7 @@ class LocalMetadataRepository:
     def save_fingerprints(
         self,
         document_id: str,
-        fingerprints: List[Any],
+        fingerprints: list[Any],
         algorithm_version: str = "winnowing-k25-w16-v1"
     ) -> int:
         if not fingerprints:
@@ -680,7 +683,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_fingerprints(self, document_id: str) -> List[Dict[str, Any]]:
+    def get_fingerprints(self, document_id: str) -> list[dict[str, Any]]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -696,8 +699,8 @@ class LocalMetadataRepository:
     def find_shared_fingerprints(
         self,
         submission_id: str,
-        candidate_ids: List[str]
-    ) -> List[Dict[str, Any]]:
+        candidate_ids: list[str]
+    ) -> list[dict[str, Any]]:
         if not candidate_ids:
             return []
         placeholders = ",".join("?" for _ in candidate_ids)
@@ -706,7 +709,7 @@ class LocalMetadataRepository:
             try:
                 cursor = conn.cursor()
                 query = f"""
-                SELECT 
+                SELECT
                     s.hash_val,
                     s.document_id as submission_document_id,
                     s.token_start as sub_token_start,
@@ -736,11 +739,11 @@ class LocalMetadataRepository:
         owner_user_id: str,
         submission_document_id: str,
         mode: str,
-        reference_document_id: Optional[str] = None,
-        collection_id: Optional[str] = None,
-        candidate_metadata: Optional[Dict[str, Any]] = None,
+        reference_document_id: str | None = None,
+        collection_id: str | None = None,
+        candidate_metadata: dict[str, Any] | None = None,
         detection_mode: str = "hybrid",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         now_str = utcnow_iso()
         meta_json = json.dumps(candidate_metadata or {})
         with self._lock:
@@ -779,10 +782,10 @@ class LocalMetadataRepository:
         analysis_id: str,
         status: str,
         progress_percent: int,
-        current_step: Optional[str] = None,
-        error_code: Optional[str] = None,
-        error_message: Optional[str] = None,
-        completed_at: Optional[str] = None
+        current_step: str | None = None,
+        error_code: str | None = None,
+        error_message: str | None = None,
+        completed_at: str | None = None
     ) -> None:
         with self._lock:
             conn = self._get_connection()
@@ -817,12 +820,12 @@ class LocalMetadataRepository:
         self,
         analysis_id: str,
         overall_lexical_cov: float,
-        findings: List[Any],
-        sources: List[Any],
-        candidate_metadata: Optional[Dict[str, Any]] = None,
+        findings: list[Any],
+        sources: list[Any],
+        candidate_metadata: dict[str, Any] | None = None,
         overall_semantic_cov: float = 0.0,
-        net_adjusted_score: Optional[float] = None,
-        hybrid_evidence_cov: Optional[float] = None,
+        net_adjusted_score: float | None = None,
+        hybrid_evidence_cov: float | None = None,
     ) -> None:
         now_str = utcnow_iso()
         calculated_net = net_adjusted_score if net_adjusted_score is not None else overall_lexical_cov
@@ -939,7 +942,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_analysis(self, analysis_id: str) -> Optional[Dict[str, Any]]:
+    def get_analysis(self, analysis_id: str) -> dict[str, Any] | None:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -966,7 +969,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_analysis_findings(self, analysis_id: str) -> List[Dict[str, Any]]:
+    def get_analysis_findings(self, analysis_id: str) -> list[dict[str, Any]]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -983,7 +986,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_finding(self, finding_id: str) -> Optional[Dict[str, Any]]:
+    def get_finding(self, finding_id: str) -> dict[str, Any] | None:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -998,8 +1001,8 @@ class LocalMetadataRepository:
         self,
         finding_id: str,
         decision: str,
-        notes: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        notes: str | None = None
+    ) -> dict[str, Any] | None:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -1031,7 +1034,7 @@ class LocalMetadataRepository:
         analysis_id: str,
         reviewer_adjusted_coverage_percent: float,
         reviewed_findings_count: int,
-        notes: Optional[str] = None
+        notes: str | None = None
     ) -> None:
         with self._lock:
             conn = self._get_connection()
@@ -1051,7 +1054,7 @@ class LocalMetadataRepository:
             finally:
                 conn.close()
 
-    def get_analysis_sources(self, analysis_id: str) -> List[Dict[str, Any]]:
+    def get_analysis_sources(self, analysis_id: str) -> list[dict[str, Any]]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -1070,10 +1073,10 @@ class LocalMetadataRepository:
 
     def list_analyses(
         self,
-        owner_user_id: Optional[str] = None,
+        owner_user_id: str | None = None,
         limit: int = 50,
         offset: int = 0
-    ) -> Tuple[List[Dict[str, Any]], int]:
+    ) -> tuple[list[dict[str, Any]], int]:
         with self._lock:
             conn = self._get_connection()
             try:
@@ -1132,7 +1135,7 @@ class LocalMetadataRepository:
                 conn.close()
 
 
-_local_repo: Optional[Any] = None
+_local_repo: Any | None = None
 
 
 def get_local_repo() -> Any:

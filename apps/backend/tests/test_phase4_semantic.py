@@ -9,31 +9,25 @@ Tests:
 6. Analyses API endpoints (/analyses/models/info, POST /analyses with detection_mode).
 """
 
-import os
 import uuid
+from datetime import UTC
+
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
 from plagiarism.core.config import get_settings
 from plagiarism.main import app
+from plagiarism.services.hybrid_service import get_hybrid_service
+from plagiarism.services.semantic.matcher import SemanticMatcher
 from plagiarism.services.semantic.provider import (
-    LocalSentenceTransformerProvider,
     get_embedding_provider,
 )
 from plagiarism.services.semantic.segmentation import ModelAwareSegmenter
-from plagiarism.storage.vector_store import (
-    SQLiteVectorRepository,
-    PassageVectorRecord,
-)
 from plagiarism.storage.local_db import get_local_repo
-from plagiarism.services.semantic.matcher import SemanticMatcher, SemanticFinding
-from plagiarism.services.hybrid_service import HybridAnalysisService, get_hybrid_service
-from plagiarism.domain.models import (
-    CreateAnalysisRequest,
-    DetectionMode,
-    SimilarityFinding,
-    AnalysisResult,
+from plagiarism.storage.vector_store import (
+    PassageVectorRecord,
+    SQLiteVectorRepository,
 )
 
 
@@ -107,7 +101,7 @@ def test_provider_embedding_dimensions_and_normalization(provider):
 def test_provider_prefix_handling_and_determinism(provider):
     """Verifies that query prefix and passage prefix produce distinct but deterministic vectors."""
     text = "Machine learning architectures are advancing rapidly."
-    
+
     q1 = provider.encode_queries([text])[0]
     q2 = provider.encode_queries([text])[0]
     p1 = provider.encode_passages([text])[0]
@@ -205,8 +199,8 @@ def test_sqlite_vector_repository_crud_and_search(provider):
     )
 
     import hashlib
-    from datetime import datetime, timezone
-    
+    from datetime import datetime
+
     vec = provider.encode_passages(["Quantum computing utilizes quantum superposition and entanglement."])[0]
     rec = PassageVectorRecord(
         passage_id=f"{doc_id}_p0",
@@ -218,8 +212,8 @@ def test_sqlite_vector_repository_crud_and_search(provider):
         model_id="intfloat/multilingual-e5-small",
         model_revision="614241f622f53c4eeff9890bdc4f31cfecc418b3",
         embedding=vec,
-        text_hash=hashlib.sha256("Quantum computing utilizes quantum superposition and entanglement.".encode("utf-8")).hexdigest(),
-        created_at=datetime.now(timezone.utc).isoformat(),
+        text_hash=hashlib.sha256(b"Quantum computing utilizes quantum superposition and entanglement.").hexdigest(),
+        created_at=datetime.now(UTC).isoformat(),
     )
     repo.store_document_embeddings([rec])
 
@@ -335,7 +329,7 @@ def test_hybrid_analysis_modes_and_union_coverage(provider):
     """
     db_repo = get_local_repo()
     service = get_hybrid_service()
-    
+
     # Create reference document
     ref_id = str(uuid.uuid4())
     ref_text = (

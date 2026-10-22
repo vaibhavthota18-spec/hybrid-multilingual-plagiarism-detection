@@ -5,11 +5,11 @@ Implements OpenAPI contracts for /documents upload, listing, preview, and deleti
 
 import os
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 
-from plagiarism.core.config import get_settings
-from plagiarism.core.errors import BadRequestError, NotFoundError, UnsupportedMediaTypeError
+from plagiarism.core.errors import NotFoundError, UnsupportedMediaTypeError
 from plagiarism.core.security import UserPrincipal, get_current_user_or_dev
 from plagiarism.services.executor import get_executor
 from plagiarism.storage.local_db import get_local_repo
@@ -28,16 +28,15 @@ SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 )
 async def upload_document(
     file: UploadFile = File(..., description="Document file to upload (PDF, DOCX, TXT)"),
-    title: Optional[str] = Form(None, description="Optional custom title for the document"),
+    title: str | None = Form(None, description="Optional custom title for the document"),
     language_hint: str = Form("auto", description="Language hint: en, hi, te, auto"),
     user: UserPrincipal = Depends(get_current_user_or_dev),
     sync_processing: bool = Query(False, description="Process synchronously (used by tests/e2e)")
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Uploads a document to private storage, validates structural integrity,
     and initiates asynchronous text extraction and passage segmentation.
     """
-    settings = get_settings()
     repo = get_local_repo()
     storage = get_private_storage()
     executor = get_executor()
@@ -118,7 +117,7 @@ async def list_documents(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Lists uploaded documents belonging to the authenticated user."""
     repo = get_local_repo()
     items, total = repo.list_documents(owner_user_id=user.user_id, limit=limit, offset=offset)
@@ -158,7 +157,7 @@ async def list_documents(
 async def get_document(
     document_id: str,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Retrieves document metadata, page counts, word counts, and extraction status."""
     repo = get_local_repo()
     doc = repo.get_document(document_id)
@@ -190,7 +189,7 @@ async def get_document(
 async def get_document_text_preview(
     document_id: str,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Retrieves raw extracted text and character metrics for UI preview."""
     repo = get_local_repo()
     doc = repo.get_document(document_id)
@@ -217,7 +216,7 @@ async def get_document_text_preview(
 async def get_document_passages(
     document_id: str,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Retrieves deterministic passage segments and code-point offsets."""
     repo = get_local_repo()
     doc = repo.get_document(document_id)

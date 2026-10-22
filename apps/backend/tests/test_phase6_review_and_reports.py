@@ -4,11 +4,11 @@ Verifies PATCH review decisions, reviewer-adjusted score recomputation, and PDF/
 """
 
 import time
+
 import pytest
 from fastapi.testclient import TestClient
 
 from plagiarism.main import app
-from plagiarism.storage.local_db import get_local_repo
 
 
 @pytest.fixture
@@ -31,8 +31,6 @@ def test_reviewer_workflow_and_score_adjustment(client):
     and dynamically recompute the reviewer-adjusted union coverage without corrupting
     original detector metrics.
     """
-    repo = get_local_repo()
-
     # Ingest submission and reference documents
     sub_text = (
         "Artificial intelligence and deep learning models have rapidly transformed contemporary research methodologies. "

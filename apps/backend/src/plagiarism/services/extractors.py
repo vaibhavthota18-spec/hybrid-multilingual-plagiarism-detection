@@ -8,10 +8,9 @@ import os
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Tuple
 
-import pypdf
 import docx
+import pypdf
 
 from plagiarism.core.errors import BadRequestError
 
@@ -21,8 +20,8 @@ class DocumentExtractionResult:
     raw_text: str
     page_count: int
     char_count: int
-    page_texts: List[Tuple[int, str]] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    page_texts: list[tuple[int, str]] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
     extractor_name: str = "default-extractor"
 
 
@@ -106,9 +105,9 @@ def extract_pdf(file_path: Path) -> DocumentExtractionResult:
             extractor_name="pypdf 6.20.1"
         )
 
-    page_texts: List[Tuple[int, str]] = []
-    full_text_chunks: List[str] = []
-    warnings: List[str] = []
+    page_texts: list[tuple[int, str]] = []
+    full_text_chunks: list[str] = []
+    warnings: list[str] = []
 
     for i, page in enumerate(reader.pages, start=1):
         try:

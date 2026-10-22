@@ -5,9 +5,10 @@ MIME types, Indic character fidelity (Hindi/Telugu), and large document handling
 """
 
 import io
-from urllib.parse import unquote
+
 import pytest
 from fastapi.testclient import TestClient
+
 from plagiarism.main import app
 
 
@@ -109,7 +110,6 @@ def test_aoa_syllabus_report_export_success(client: TestClient):
 def test_multilingual_indic_report_export(client: TestClient):
     """Verifies PDF, HTML, and JSON reports properly render Hindi and Telugu characters."""
     hi_text = "बुद्धिमत्ता एक व्यापक मानसिक क्षमता है जिसमें तर्क करने की क्षमता शामिल है।"
-    te_text = "మేధస్సు అనేది ఒక సమగ్ర మానసిక సామర్థ్యం, ఇందులో తార్కిక ఆలోచన ఉంటుంది."
 
     r_hi = client.post(
         "/api/v1/documents?sync_processing=true",

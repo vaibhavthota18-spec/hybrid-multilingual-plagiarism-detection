@@ -5,27 +5,26 @@ Uses intfloat/multilingual-e5-small embeddings with calibrated thresholds to ide
 same-language paraphrases and cross-language semantic equivalents across English, Hindi, and Telugu.
 """
 
-from dataclasses import dataclass
 import hashlib
 import logging
 import uuid
-from typing import Any, Dict, List, Optional, Tuple
-import numpy as np
+from dataclasses import dataclass
+from typing import Any
 
 from plagiarism.core.config import get_settings
+from plagiarism.services.segmentation import SegmentedPassage
 from plagiarism.services.semantic.provider import (
     SemanticEmbeddingProvider,
     get_embedding_provider,
 )
 from plagiarism.services.semantic.segmentation import ModelAwareSegmenter
+from plagiarism.storage.local_db import LocalMetadataRepository, get_local_repo
 from plagiarism.storage.vector_store import (
     PassageVectorRecord,
     VectorIndex,
     VectorSearchResult,
     get_vector_repository,
 )
-from plagiarism.storage.local_db import LocalMetadataRepository, get_local_repo
-from plagiarism.services.segmentation import SegmentedPassage
 
 logger = logging.getLogger(__name__)
 
@@ -61,10 +60,10 @@ class SemanticMatcher:
 
     def __init__(
         self,
-        provider: Optional[SemanticEmbeddingProvider] = None,
-        vector_repo: Optional[VectorIndex] = None,
-        segmenter: Optional[ModelAwareSegmenter] = None,
-        repo: Optional[LocalMetadataRepository] = None,
+        provider: SemanticEmbeddingProvider | None = None,
+        vector_repo: VectorIndex | None = None,
+        segmenter: ModelAwareSegmenter | None = None,
+        repo: LocalMetadataRepository | None = None,
     ):
         self.provider = provider or get_embedding_provider()
         self.vector_repo = vector_repo or get_vector_repository()
@@ -77,7 +76,7 @@ class SemanticMatcher:
         document_id: str,
         raw_text: str,
         detected_language: str = "en",
-    ) -> List[PassageVectorRecord]:
+    ) -> list[PassageVectorRecord]:
         """
         Generates and persists passage embeddings if not already cached for current model revision.
         """
@@ -89,7 +88,7 @@ class SemanticMatcher:
             return self.vector_repo.get_document_embeddings(document_id)
 
         # 1. Segment document into model-aware passages
-        passages: List[SegmentedPassage] = self.segmenter.prepare_passages(
+        passages: list[SegmentedPassage] = self.segmenter.prepare_passages(
             document_id=document_id,
             original_text=raw_text,
             detected_language=detected_language,
@@ -131,9 +130,9 @@ class SemanticMatcher:
         submission_document_id: str,
         submission_text: str,
         submission_lang: str,
-        candidate_docs: List[Dict[str, Any]],
+        candidate_docs: list[dict[str, Any]],
         top_k: int = 5,
-    ) -> List[SemanticFinding]:
+    ) -> list[SemanticFinding]:
         """
         Performs dense semantic retrieval and evidence mapping across candidate documents.
         """
@@ -141,7 +140,7 @@ class SemanticMatcher:
             return []
 
         # 1. Segment submission into query passages
-        sub_passages: List[SegmentedPassage] = self.segmenter.prepare_passages(
+        sub_passages: list[SegmentedPassage] = self.segmenter.prepare_passages(
             document_id=submission_document_id,
             original_text=submission_text,
             detected_language=submission_lang,
@@ -172,7 +171,7 @@ class SemanticMatcher:
             self.settings.SEMANTIC_PARAPHRASE_THRESHOLD - 0.05,
             self.settings.SEMANTIC_TRANSLATION_THRESHOLD - 0.05,
         )
-        search_results: List[List[VectorSearchResult]] = self.vector_repo.search_candidates(
+        search_results: list[list[VectorSearchResult]] = self.vector_repo.search_candidates(
             query_vectors=query_embeddings,
             candidate_document_ids=candidate_ids,
             top_k=top_k,
@@ -182,7 +181,7 @@ class SemanticMatcher:
         model_info = self.provider.get_model_info()
         model_name = model_info["model_name"]
         sub_lang = submission_lang or "en"
-        findings: List[SemanticFinding] = []
+        findings: list[SemanticFinding] = []
 
         # 5. Evaluate and classify findings
         for q_idx, res_list in enumerate(search_results):

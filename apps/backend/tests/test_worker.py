@@ -3,7 +3,8 @@ Unit Tests for Background Worker Tasks and Queue Lifecycle
 """
 
 import pytest
-from plagiarism.jobs.tasks import ping_job, simulate_calculation, failing_job
+
+from plagiarism.jobs.tasks import failing_job, ping_job, simulate_calculation
 
 
 def test_ping_job_execution():

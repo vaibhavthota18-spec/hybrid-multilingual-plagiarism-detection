@@ -5,23 +5,22 @@ Semantic AI (Multilingual E5 + Dense Vector Index + Cross-Lingual Alignment).
 Handles deduplication, separate metric reporting, and non-overlapping hybrid coverage.
 """
 
-from dataclasses import dataclass
 import logging
-from typing import Any, Dict, List, Optional, Set, Tuple
-import uuid
+from dataclasses import dataclass
+from typing import Any
 
 from plagiarism.core.config import get_settings
 from plagiarism.core.errors import BadRequestError, NotFoundError
-from plagiarism.services.lexical.tokenizer import LexicalTokenizer, LexicalToken
-from plagiarism.services.lexical.winnowing import WinnowingEngine
+from plagiarism.services.lexical.aligner import AlignedFinding, PassageAligner
 from plagiarism.services.lexical.bm25 import BM25Index
-from plagiarism.services.lexical.aligner import PassageAligner, AlignedFinding
 from plagiarism.services.lexical.coverage import (
     CoverageCalculator,
     SourceCoverageSummary,
     merge_token_intervals,
 )
-from plagiarism.services.semantic.matcher import SemanticMatcher, SemanticFinding
+from plagiarism.services.lexical.tokenizer import LexicalToken, LexicalTokenizer
+from plagiarism.services.lexical.winnowing import WinnowingEngine
+from plagiarism.services.semantic.matcher import SemanticFinding, SemanticMatcher
 from plagiarism.storage.local_db import LocalMetadataRepository, get_local_repo
 
 logger = logging.getLogger(__name__)
@@ -47,8 +46,8 @@ class HybridFinding:
     semantic_similarity: float
     is_quoted: bool
     is_excluded: bool
-    language_pair: Optional[str] = None
-    model_name: Optional[str] = None
+    language_pair: str | None = None
+    model_name: str | None = None
 
 
 class HybridAnalysisService:
@@ -61,12 +60,12 @@ class HybridAnalysisService:
 
     def __init__(
         self,
-        repo: Optional[LocalMetadataRepository] = None,
-        tokenizer: Optional[LexicalTokenizer] = None,
-        winnowing: Optional[WinnowingEngine] = None,
-        aligner: Optional[PassageAligner] = None,
-        coverage_calc: Optional[CoverageCalculator] = None,
-        semantic_matcher: Optional[SemanticMatcher] = None,
+        repo: LocalMetadataRepository | None = None,
+        tokenizer: LexicalTokenizer | None = None,
+        winnowing: WinnowingEngine | None = None,
+        aligner: PassageAligner | None = None,
+        coverage_calc: CoverageCalculator | None = None,
+        semantic_matcher: SemanticMatcher | None = None,
     ):
         self.repo = repo or get_local_repo()
         self.tokenizer = tokenizer or LexicalTokenizer()
@@ -83,10 +82,10 @@ class HybridAnalysisService:
         submission_document_id: str,
         mode: str,
         detection_mode: str = "hybrid",
-        reference_document_id: Optional[str] = None,
-        reference_document_ids: Optional[List[str]] = None,
-        collection_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        reference_document_id: str | None = None,
+        reference_document_ids: list[str] | None = None,
+        collection_id: str | None = None,
+    ) -> dict[str, Any]:
         """
         Executes end-to-end plagiarism analysis synchronously.
         """
@@ -109,7 +108,7 @@ class HybridAnalysisService:
             self.repo.update_analysis_status(
                 analysis_id, status="processing", progress_percent=20, current_step="resolving_candidates"
             )
-            candidate_docs: List[Dict[str, Any]] = []
+            candidate_docs: list[dict[str, Any]] = []
 
             if mode == "direct":
                 if not reference_document_id:
@@ -156,8 +155,8 @@ class HybridAnalysisService:
             run_lexical = detection_mode in ("lexical", "hybrid")
             run_semantic = detection_mode in ("semantic", "hybrid")
 
-            lexical_findings: List[AlignedFinding] = []
-            semantic_findings: List[SemanticFinding] = []
+            lexical_findings: list[AlignedFinding] = []
+            semantic_findings: list[SemanticFinding] = []
             bm25_score_map = {}
             shared_fp_counts = {}
 
@@ -175,7 +174,7 @@ class HybridAnalysisService:
                     )
 
                 bm25 = BM25Index(k1=1.2, b=0.75)
-                ref_tokens_cache: Dict[str, List[LexicalToken]] = {}
+                ref_tokens_cache: dict[str, list[LexicalToken]] = {}
                 candidate_ids = [c["document_id"] for c in candidate_docs]
 
                 for c in candidate_docs:
@@ -287,21 +286,21 @@ class HybridAnalysisService:
 
     def _integrate_and_score(
         self,
-        sub_tokens: List[LexicalToken],
+        sub_tokens: list[LexicalToken],
         sub_raw_text: str,
-        lexical_findings: List[AlignedFinding],
-        semantic_findings: List[SemanticFinding],
-        candidate_docs: List[Dict[str, Any]],
+        lexical_findings: list[AlignedFinding],
+        semantic_findings: list[SemanticFinding],
+        candidate_docs: list[dict[str, Any]],
         detection_mode: str,
-    ) -> Tuple[List[HybridFinding], float, float, float, float, List[SourceCoverageSummary]]:
+    ) -> tuple[list[HybridFinding], float, float, float, float, list[SourceCoverageSummary]]:
         """
         Deduplicates overlapping spans, computes separate metrics, and builds per-source summaries.
         """
         total_tokens = len(sub_tokens)
-        final_findings: List[HybridFinding] = []
+        final_findings: list[HybridFinding] = []
 
         # Map character offsets to token intervals
-        def char_offsets_to_token_interval(start_char: int, end_char: int) -> Tuple[int, int]:
+        def char_offsets_to_token_interval(start_char: int, end_char: int) -> tuple[int, int]:
             matched_toks = [
                 t.index for t in sub_tokens
                 if t.start_char >= start_char and t.end_char <= end_char
@@ -316,7 +315,7 @@ class HybridAnalysisService:
             return (min(matched_toks), max(matched_toks) + 1)
 
         # 1. Process Lexical findings
-        lexical_intervals: List[Tuple[int, int]] = []
+        lexical_intervals: list[tuple[int, int]] = []
         for lf in lexical_findings:
             lexical_intervals.append((lf.submission_start_token, lf.submission_end_token))
             final_findings.append(
@@ -343,7 +342,7 @@ class HybridAnalysisService:
             )
 
         # 2. Process and Deduplicate Semantic findings
-        semantic_intervals: List[Tuple[int, int]] = []
+        semantic_intervals: list[tuple[int, int]] = []
         for sf in semantic_findings:
             tok_s, tok_e = char_offsets_to_token_interval(
                 sf.submission_start_offset, sf.submission_end_offset
@@ -396,7 +395,7 @@ class HybridAnalysisService:
                 )
 
         # 3. Calculate separate non-overlapping coverage metrics
-        def interval_coverage(intervals: List[Tuple[int, int]]) -> float:
+        def interval_coverage(intervals: list[tuple[int, int]]) -> float:
             if not intervals or total_tokens <= 0:
                 return 0.0
             disjoint = merge_token_intervals(intervals)
@@ -422,7 +421,7 @@ class HybridAnalysisService:
             net_score = round(min(100.0, 0.40 * overall_lexical_cov + 0.60 * overall_semantic_cov), 2)
 
         # 4. Build per-source coverage breakdowns
-        sources_map: Dict[str, Dict[str, Any]] = {}
+        sources_map: dict[str, dict[str, Any]] = {}
         for c in candidate_docs:
             cid = c["document_id"]
             title = c.get("title") or c.get("filename") or "Reference Document"
@@ -446,7 +445,7 @@ class HybridAnalysisService:
                     if f.semantic_similarity > 0.0 or f.category in ("paraphrase", "potential_translation"):
                         sources_map[rid]["semantic_intervals"].append((tok_s, tok_e))
 
-        source_summaries: List[SourceCoverageSummary] = []
+        source_summaries: list[SourceCoverageSummary] = []
         for rid, sdata in sources_map.items():
             if sdata["matched_count"] > 0:
                 s_lex_cov = interval_coverage(sdata["lexical_intervals"])
@@ -472,7 +471,7 @@ class HybridAnalysisService:
 
         return final_findings, overall_lexical_cov, overall_semantic_cov, hybrid_cov, net_score, source_summaries
 
-    def recompute_reviewer_adjusted_coverage(self, analysis_id: str) -> Dict[str, Any]:
+    def recompute_reviewer_adjusted_coverage(self, analysis_id: str) -> dict[str, Any]:
         """
         Recomputes reviewer-adjusted evidence coverage after review decisions change.
         Mathematical Invariant:
@@ -495,7 +494,7 @@ class HybridAnalysisService:
         total_tokens = len(sub_tokens)
 
         findings = self.repo.get_analysis_findings(analysis_id)
-        active_intervals: List[Tuple[int, int]] = []
+        active_intervals: list[tuple[int, int]] = []
 
         status_counts = {
             "total": len(findings),
@@ -552,7 +551,7 @@ class HybridAnalysisService:
         }
 
 
-_hybrid_service: Optional[HybridAnalysisService] = None
+_hybrid_service: HybridAnalysisService | None = None
 
 
 def get_hybrid_service() -> HybridAnalysisService:

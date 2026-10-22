@@ -4,18 +4,16 @@ Coordinates the end-to-end plagiarism detection pipeline:
 Tokenization -> Winnowing -> BM25 Candidate Retrieval -> Passage Alignment -> Evidence Verification -> Coverage Calculation.
 """
 
-import json
 import logging
-import uuid
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-from plagiarism.services.lexical.tokenizer import LexicalTokenizer, LexicalToken
-from plagiarism.services.lexical.winnowing import WinnowingEngine, Fingerprint
-from plagiarism.services.lexical.bm25 import BM25Index
-from plagiarism.services.lexical.aligner import PassageAligner, AlignedFinding
-from plagiarism.services.lexical.coverage import CoverageCalculator, SourceCoverageSummary
-from plagiarism.storage.local_db import LocalMetadataRepository, get_local_repo
 from plagiarism.core.errors import BadRequestError, NotFoundError
+from plagiarism.services.lexical.aligner import AlignedFinding, PassageAligner
+from plagiarism.services.lexical.bm25 import BM25Index
+from plagiarism.services.lexical.coverage import CoverageCalculator
+from plagiarism.services.lexical.tokenizer import LexicalToken, LexicalTokenizer
+from plagiarism.services.lexical.winnowing import WinnowingEngine
+from plagiarism.storage.local_db import LocalMetadataRepository, get_local_repo
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +25,11 @@ class LexicalAnalysisService:
 
     def __init__(
         self,
-        repo: Optional[LocalMetadataRepository] = None,
-        tokenizer: Optional[LexicalTokenizer] = None,
-        winnowing: Optional[WinnowingEngine] = None,
-        aligner: Optional[PassageAligner] = None,
-        coverage_calc: Optional[CoverageCalculator] = None,
+        repo: LocalMetadataRepository | None = None,
+        tokenizer: LexicalTokenizer | None = None,
+        winnowing: WinnowingEngine | None = None,
+        aligner: PassageAligner | None = None,
+        coverage_calc: CoverageCalculator | None = None,
     ):
         self.repo = repo or get_local_repo()
         self.tokenizer = tokenizer or LexicalTokenizer()
@@ -45,10 +43,10 @@ class LexicalAnalysisService:
         owner_user_id: str,
         submission_document_id: str,
         mode: str,
-        reference_document_id: Optional[str] = None,
-        reference_document_ids: Optional[List[str]] = None,
-        collection_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        reference_document_id: str | None = None,
+        reference_document_ids: list[str] | None = None,
+        collection_id: str | None = None,
+    ) -> dict[str, Any]:
         """
         Executes complete lexical detection synchronously.
         Can be invoked directly or in a background thread.
@@ -79,7 +77,7 @@ class LexicalAnalysisService:
             self.repo.update_analysis_status(
                 analysis_id, status="processing", progress_percent=25, current_step="resolving_candidates"
             )
-            candidate_docs: List[Dict[str, Any]] = []
+            candidate_docs: list[dict[str, Any]] = []
 
             if mode == "direct":
                 if not reference_document_id:
@@ -127,7 +125,7 @@ class LexicalAnalysisService:
                 analysis_id, status="processing", progress_percent=40, current_step="candidate_retrieval"
             )
             bm25 = BM25Index(k1=1.2, b=0.75)
-            ref_tokens_cache: Dict[str, List[LexicalToken]] = {}
+            ref_tokens_cache: dict[str, list[LexicalToken]] = {}
 
             candidate_ids = [c["document_id"] for c in candidate_docs]
             for c in candidate_docs:
@@ -149,7 +147,7 @@ class LexicalAnalysisService:
 
             # Query shared fingerprints
             shared_fps = self.repo.find_shared_fingerprints(submission_document_id, candidate_ids)
-            shared_fp_counts: Dict[str, int] = {}
+            shared_fp_counts: dict[str, int] = {}
             for sfp in shared_fps:
                 r_id = sfp["reference_document_id"]
                 shared_fp_counts[r_id] = shared_fp_counts.get(r_id, 0) + 1
@@ -165,7 +163,7 @@ class LexicalAnalysisService:
             self.repo.update_analysis_status(
                 analysis_id, status="processing", progress_percent=65, current_step="aligning_passages"
             )
-            all_findings: List[AlignedFinding] = []
+            all_findings: list[AlignedFinding] = []
 
             for c in candidate_docs:
                 c_id = c["document_id"]
@@ -216,7 +214,7 @@ class LexicalAnalysisService:
             raise
 
 
-_analysis_service: Optional[LexicalAnalysisService] = None
+_analysis_service: LexicalAnalysisService | None = None
 
 
 def get_analysis_service() -> LexicalAnalysisService:

@@ -8,7 +8,7 @@ import hashlib
 import os
 import re
 from pathlib import Path
-from typing import BinaryIO, Optional, Tuple
+
 from fastapi import UploadFile
 
 from plagiarism.core.config import get_settings
@@ -16,12 +16,15 @@ from plagiarism.core.errors import BadRequestError, PayloadTooLargeError
 
 
 def sanitize_filename(filename: str) -> str:
-    """
+    r"""
     Sanitizes raw client-supplied filenames:
     Strips directory separators, removes null bytes, and collapses unsafe sequences.
+    Cross-platform safe: handles both POSIX (/) and Windows (\) separators.
     """
     # Remove null bytes
     cleaned = filename.replace("\x00", "")
+    # Normalize Windows backslashes to forward slashes before getting basename so it works identically on Linux and Windows
+    cleaned = cleaned.replace("\\", "/")
     # Take basename only to prevent directory traversal
     cleaned = os.path.basename(cleaned)
     cleaned = re.sub(r'[\\/*?:"<>|]', "_", cleaned)
@@ -35,7 +38,7 @@ class PrivateStorageManager:
     """
     Manages private filesystem storage for uploaded source documents.
     """
-    def __init__(self, root_dir: Optional[Path] = None):
+    def __init__(self, root_dir: Path | None = None):
         settings = get_settings()
         self.root_dir = (root_dir or settings.LOCAL_PRIVATE_STORAGE_ROOT).resolve()
         self.root_dir.mkdir(parents=True, exist_ok=True)
@@ -61,7 +64,7 @@ class PrivateStorageManager:
         upload_file: UploadFile,
         document_id: str,
         extension: str
-    ) -> Tuple[str, int, str]:
+    ) -> tuple[str, int, str]:
         """
         Streams an uploaded file to secure private storage.
         Computes SHA-256 hash incrementally and enforces maximum upload size.
@@ -70,7 +73,7 @@ class PrivateStorageManager:
         # Enforce extension begins with a dot
         if not extension.startswith("."):
             extension = f".{extension}"
-        
+
         # Clean extension of unsafe characters
         extension = re.sub(r'[^a-zA-Z0-9.]', '', extension.lower())
 
@@ -137,7 +140,7 @@ class PrivateStorageManager:
         return path
 
 
-_storage_manager: Optional[PrivateStorageManager] = None
+_storage_manager: PrivateStorageManager | None = None
 
 
 def get_private_storage() -> PrivateStorageManager:

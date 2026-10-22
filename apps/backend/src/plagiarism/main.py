@@ -3,29 +3,30 @@ Main Application Entry Point — FastAPI Server
 Hybrid AI-Powered Multilingual Plagiarism Detection and Analysis System
 """
 
+import logging
 import time
 import uuid
-import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Dict, Any
+from typing import Any
 
 from fastapi import FastAPI, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from plagiarism.api.v1.health import get_health_status
+from plagiarism.api.v1.router import api_v1_router
 from plagiarism.core.config import get_settings
-from plagiarism.core.logging import setup_logging
 from plagiarism.core.errors import (
     AppError,
     app_error_handler,
     create_error_response,
     unhandled_exception_handler,
 )
-from plagiarism.api.v1.router import api_v1_router
-from plagiarism.api.v1.health import get_health_status
-from plagiarism.domain.models import HealthStatus
+from plagiarism.core.logging import setup_logging
 from plagiarism.db.session import engine
+from plagiarism.domain.models import HealthStatus
 from plagiarism.jobs.queue import close_redis_connection
 
 logger = logging.getLogger("plagiarism.main")
@@ -137,7 +138,7 @@ def create_application() -> FastAPI:
 
     # Informational Service Index
     @app.get("/", tags=["System"], summary="API Root Information")
-    async def root_info() -> Dict[str, Any]:
+    async def root_info() -> dict[str, Any]:
         return {
             "name": "Hybrid AI-Powered Multilingual Plagiarism Detection API",
             "version": settings.APP_VERSION,

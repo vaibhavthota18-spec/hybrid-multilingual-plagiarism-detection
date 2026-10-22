@@ -3,7 +3,6 @@ Deterministic 64-Bit FNV-1a Token Hash and Polynomial Rolling Hash over Token K-
 Provides process-independent, mathematically defined hashing without Python's randomized hash().
 """
 
-from typing import List, Tuple
 
 # 64-bit FNV-1a parameters
 FNV_64_PRIME = 0x100000001B3
@@ -28,7 +27,7 @@ def fnv1a_64(token_str: str) -> int:
 
 
 def compute_kgram_hash(
-    token_hashes: List[int],
+    token_hashes: list[int],
     base: int = ROLLING_BASE,
     modulus: int = ROLLING_MODULUS
 ) -> int:
@@ -50,7 +49,7 @@ class RollingHash:
 
     def __init__(
         self,
-        token_hashes: List[int],
+        token_hashes: list[int],
         k: int,
         base: int = ROLLING_BASE,
         modulus: int = ROLLING_MODULUS
@@ -62,7 +61,7 @@ class RollingHash:
         # Precompute base^(k-1) mod modulus
         self.high_power = pow(base, k - 1, modulus) if k > 0 else 1
 
-    def compute_all(self) -> List[Tuple[int, int]]:
+    def compute_all(self) -> list[tuple[int, int]]:
         """
         Computes all k-gram hashes for the token sequence.
         Returns a list of tuples: (start_token_index, kgram_hash)
@@ -77,7 +76,7 @@ class RollingHash:
             short_hash = compute_kgram_hash(self.hashes, self.base, self.modulus)
             return [(0, short_hash)]
 
-        results: List[Tuple[int, int]] = []
+        results: list[tuple[int, int]] = []
 
         # Compute initial k-gram hash for window [0 : k]
         current_hash = 0

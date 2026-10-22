@@ -4,9 +4,8 @@ Provides candidate source ranking based on probabilistic term relevance.
 BM25 scores represent retrieval relevance, NOT plagiarism percentages.
 """
 
-from collections import Counter
 import math
-from typing import Dict, List, Tuple
+from collections import Counter
 
 
 class BM25Index:
@@ -20,14 +19,14 @@ class BM25Index:
     def __init__(self, k1: float = 1.2, b: float = 0.75):
         self.k1 = k1
         self.b = b
-        self.doc_ids: List[str] = []
-        self.doc_lengths: Dict[str, int] = {}
-        self.term_frequencies: Dict[str, Counter] = {}
+        self.doc_ids: list[str] = []
+        self.doc_lengths: dict[str, int] = {}
+        self.term_frequencies: dict[str, Counter] = {}
         self.doc_frequencies: Counter = Counter()
         self.total_docs: int = 0
         self.avg_doc_length: float = 0.0
 
-    def add_document(self, doc_id: str, tokens: List[str]) -> None:
+    def add_document(self, doc_id: str, tokens: list[str]) -> None:
         """Indexes a document from a list of normalized token strings."""
         if doc_id in self.doc_lengths:
             # Document already indexed; skip or replace
@@ -54,7 +53,7 @@ class BM25Index:
         val = math.log((numerator / denominator) + 1.0)
         return max(0.0, val)
 
-    def score_document(self, query_tokens: List[str], doc_id: str) -> float:
+    def score_document(self, query_tokens: list[str], doc_id: str) -> float:
         """Calculates BM25 relevance score of a specific document for a query."""
         if doc_id not in self.term_frequencies or self.total_docs == 0:
             return 0.0
@@ -83,17 +82,17 @@ class BM25Index:
 
     def rank_candidates(
         self,
-        query_tokens: List[str],
-        candidate_doc_ids: List[str] = None,
+        query_tokens: list[str],
+        candidate_doc_ids: list[str] = None,
         top_k: int = 20
-    ) -> List[Tuple[str, float]]:
+    ) -> list[tuple[str, float]]:
         """
         Ranks candidate documents by BM25 relevance score.
         If candidate_doc_ids is None, searches all indexed documents.
         Returns ordered list of (doc_id, bm25_score) descending.
         """
         target_ids = candidate_doc_ids if candidate_doc_ids is not None else self.doc_ids
-        scored: List[Tuple[str, float]] = []
+        scored: list[tuple[str, float]] = []
 
         for doc_id in target_ids:
             s = self.score_document(query_tokens, doc_id)

@@ -5,21 +5,21 @@ Preserves original evidence scores while reporting reviewer-adjusted metrics.
 Supports English, Hindi, and Telugu multilingual text rendering.
 """
 
-from datetime import datetime, timezone
 import html
 import io
-import json
 import os
-import re
+import shutil
 import subprocess
 import tempfile
-from typing import Any, Dict, List, Optional
-from urllib.parse import quote
+from datetime import UTC, datetime
+from typing import Any
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     HRFlowable,
     Paragraph,
@@ -28,10 +28,6 @@ from reportlab.platypus import (
     Table,
     TableStyle,
 )
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-
-import shutil
 
 # Auto-register Unicode Indic font if available on host system
 _INDIC_FONT_NAME = "Helvetica"
@@ -71,7 +67,7 @@ else:
                 pass
 
 
-def _find_chromium_browser() -> Optional[str]:
+def _find_chromium_browser() -> str | None:
     """Finds a Chromium-based browser capable of headless print-to-pdf across Windows and Linux."""
     # Check explicit environment override
     env_browser = os.getenv("CHROMIUM_PATH") or os.getenv("CHROME_BIN")
@@ -108,12 +104,12 @@ class ReportGenerator:
 
     @staticmethod
     def generate_json_report(
-        analysis: Dict[str, Any],
-        findings: List[Dict[str, Any]],
-        sources: List[Dict[str, Any]],
+        analysis: dict[str, Any],
+        findings: list[dict[str, Any]],
+        sources: list[dict[str, Any]],
         include_notes: bool = True,
-        doc_meta: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        doc_meta: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Builds a comprehensive JSON report payload for external audits and integrations."""
         status_counts = {
             "total": len(findings),
@@ -176,7 +172,7 @@ class ReportGenerator:
         return {
             "report_id": str(analysis.get("analysis_id")),
             "report_version": "1.0",
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "product_name": "Hybrid Multilingual Plagiarism Detection Platform",
             "analysis_id": str(analysis.get("analysis_id")),
             "submission_filename": sub_filename,
@@ -234,11 +230,11 @@ class ReportGenerator:
 
     @staticmethod
     def generate_html_report(
-        analysis: Dict[str, Any],
-        findings: List[Dict[str, Any]],
-        sources: List[Dict[str, Any]],
+        analysis: dict[str, Any],
+        findings: list[dict[str, Any]],
+        sources: list[dict[str, Any]],
         include_notes: bool = True,
-        doc_meta: Optional[Dict[str, Any]] = None,
+        doc_meta: dict[str, Any] | None = None,
     ) -> str:
         """Builds a beautiful, responsive, self-contained HTML report printable with browser print and Edge PDF engine."""
         orig_score = analysis.get("hybrid_evidence_coverage_percent")
@@ -257,7 +253,7 @@ class ReportGenerator:
         det_mode_raw = str(analysis.get("detection_mode", "hybrid"))
         det_mode = "Hybrid Balanced" if det_mode_raw == "hybrid" else ("Exact & Structural" if det_mode_raw == "lexical" else "Semantic Paraphrase")
         created_at = html.escape(str(analysis.get("created_at", ""))[:19].replace("T", " "))
-        generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        generated_at = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 
         # Document information
         doc_format = "PDF" if sub_filename.lower().endswith(".pdf") else ("DOCX" if sub_filename.lower().endswith(".docx") else "TXT")
@@ -689,11 +685,11 @@ class ReportGenerator:
 
     @staticmethod
     def generate_pdf_report(
-        analysis: Dict[str, Any],
-        findings: List[Dict[str, Any]],
-        sources: List[Dict[str, Any]],
+        analysis: dict[str, Any],
+        findings: list[dict[str, Any]],
+        sources: list[dict[str, Any]],
         include_notes: bool = True,
-        doc_meta: Optional[Dict[str, Any]] = None,
+        doc_meta: dict[str, Any] | None = None,
     ) -> bytes:
         """
         Builds a formal multi-page PDF audit report.
@@ -728,7 +724,7 @@ class ReportGenerator:
                     f"--print-to-pdf={temp_pdf_path}",
                     temp_html_path,
                 ]
-                subprocess.run(cmd, check=True, timeout=30, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                subprocess.run(cmd, check=True, timeout=30, capture_output=True)
 
                 if os.path.exists(temp_pdf_path) and os.path.getsize(temp_pdf_path) > 0:
                     with open(temp_pdf_path, "rb") as pf:
@@ -754,11 +750,11 @@ class ReportGenerator:
 
     @staticmethod
     def _generate_pdf_reportlab(
-        analysis: Dict[str, Any],
-        findings: List[Dict[str, Any]],
-        sources: List[Dict[str, Any]],
+        analysis: dict[str, Any],
+        findings: list[dict[str, Any]],
+        sources: list[dict[str, Any]],
         include_notes: bool = True,
-        doc_meta: Optional[Dict[str, Any]] = None,
+        doc_meta: dict[str, Any] | None = None,
     ) -> bytes:
         """ReportLab fallback generator engineered to never raise LayoutError on long excerpts."""
         buffer = io.BytesIO()

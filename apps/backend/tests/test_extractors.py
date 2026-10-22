@@ -3,20 +3,19 @@ Unit Tests for Document Text Extractors (PDF, DOCX, TXT)
 Tests real extraction, magic byte validation, encrypted PDF detection, and error conditions.
 """
 
-import io
-import pytest
-import pypdf
-import docx
 from pathlib import Path
 
+import docx
+import pytest
+
+from plagiarism.core.errors import BadRequestError
 from plagiarism.services.extractors import (
     extract_document,
-    extract_pdf,
     extract_docx,
+    extract_pdf,
     extract_txt,
     validate_format_magic,
 )
-from plagiarism.core.errors import BadRequestError
 
 
 @pytest.fixture
@@ -49,14 +48,14 @@ def sample_docx_path(tmp_path: Path) -> Path:
     doc.add_paragraph("This study examines lexical and semantic plagiarism detection across multiple languages.")
     doc.add_paragraph("Hindi: साहित्यिक चोरी का पता लगाने के लिए बहुभाषी प्रणाली।")
     doc.add_paragraph("Telugu: బహుభాషా సాహిత్య చౌర్యం గుర్తించే పరిశోధనా వ్యవస్థ.")
-    
+
     # Add a table
     table = doc.add_table(rows=2, cols=2)
     table.cell(0, 0).text = "Language"
     table.cell(0, 1).text = "Script"
     table.cell(1, 0).text = "Telugu"
     table.cell(1, 1).text = "Brahmic (Telugu script)"
-    
+
     docx_path = tmp_path / "sample.docx"
     doc.save(str(docx_path))
     return docx_path
@@ -92,7 +91,7 @@ def test_txt_extraction_utf16(tmp_path):
     txt_path = tmp_path / "utf16_sample.txt"
     content = "UTF-16 test document with multilingual text: తెలుగు మరియు हिंदी."
     txt_path.write_text(content, encoding="utf-16")
-    
+
     result = extract_txt(txt_path)
     assert "UTF-16 test document" in result.raw_text
     assert "తెలుగు మరియు हिंदी" in result.raw_text
@@ -121,7 +120,7 @@ def test_pdf_magic_validation_failure(tmp_path):
     """Verify spoofed PDF file (e.g. text file renamed to .pdf) is rejected."""
     fake_pdf = tmp_path / "fake.pdf"
     fake_pdf.write_text("This is definitely not a PDF file.", encoding="utf-8")
-    
+
     with pytest.raises(BadRequestError, match="Invalid PDF format: file header does not match %PDF-"):
         validate_format_magic(fake_pdf, "pdf")
 
@@ -130,7 +129,7 @@ def test_docx_magic_validation_failure(tmp_path):
     """Verify spoofed DOCX file is rejected by magic byte validator."""
     fake_docx = tmp_path / "fake.docx"
     fake_docx.write_text("Plain text masquerading as a DOCX archive", encoding="utf-8")
-    
+
     with pytest.raises(BadRequestError, match="Invalid DOCX format: file is not a valid ZIP"):
         validate_format_magic(fake_docx, "docx")
 
@@ -139,6 +138,6 @@ def test_unsupported_format_dispatch(tmp_path):
     """Verify unsupported extensions (e.g. .exe, .xlsx) are rejected."""
     bad_file = tmp_path / "document.xlsx"
     bad_file.write_bytes(b"dummy")
-    
+
     with pytest.raises(BadRequestError, match="Unsupported document format"):
         extract_document(bad_file, "xlsx")

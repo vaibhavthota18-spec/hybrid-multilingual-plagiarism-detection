@@ -3,11 +3,13 @@ System Health and Readiness Probe
 Matches contracts/openapi.yaml /health endpoint specification
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, status
+
 from plagiarism.core.config import get_settings
-from plagiarism.domain.models import HealthStatus
 from plagiarism.db.session import check_db_health
+from plagiarism.domain.models import HealthStatus
 from plagiarism.jobs.queue import check_redis_health
 
 router = APIRouter(tags=["System"])
@@ -48,7 +50,7 @@ async def get_health_status() -> HealthStatus:
         overall_status = "healthy" if db_ok else "degraded"
         return HealthStatus(
             status=overall_status,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             database=db_status,
             redis=redis_status,
             worker_pool=worker_status,
@@ -67,7 +69,7 @@ async def get_health_status() -> HealthStatus:
 
     return HealthStatus(
         status=overall_status,
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         database=db_status,
         redis=redis_status,
         worker_pool=worker_status,

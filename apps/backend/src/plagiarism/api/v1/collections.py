@@ -4,11 +4,12 @@ Implements OpenAPI contracts for /collections creation, listing, membership, and
 """
 
 import uuid
-from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Body, Depends, Query, status
+from typing import Any
+
+from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
 
-from plagiarism.core.errors import BadRequestError, NotFoundError
+from plagiarism.core.errors import NotFoundError
 from plagiarism.core.security import UserPrincipal, get_current_user_or_dev
 from plagiarism.storage.local_db import get_local_repo
 
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/collections", tags=["Collections"])
 
 class CreateCollectionRequest(BaseModel):
     name: str = Field(..., min_length=3, max_length=120, description="Collection name")
-    description: Optional[str] = Field(None, max_length=1000, description="Optional collection description")
+    description: str | None = Field(None, max_length=1000, description="Optional collection description")
     is_public_within_tenant: bool = Field(False, description="Whether collection is visible to tenant peers")
 
 
@@ -34,7 +35,7 @@ class AddDocumentToCollectionRequest(BaseModel):
 async def create_collection(
     request: CreateCollectionRequest,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Creates a new private reference collection for group-based plagiarism analysis."""
     repo = get_local_repo()
     collection_id = str(uuid.uuid4())
@@ -66,7 +67,7 @@ async def list_collections(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Lists reference collections owned by or shared with the authenticated user."""
     repo = get_local_repo()
     items, total = repo.list_collections(owner_user_id=user.user_id, limit=limit, offset=offset)
@@ -100,7 +101,7 @@ async def list_collections(
 async def get_collection(
     collection_id: str,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Retrieves metadata and document statistics for a specific reference collection."""
     repo = get_local_repo()
     col = repo.get_collection(collection_id)
@@ -125,7 +126,7 @@ async def get_collection(
 async def list_collection_documents(
     collection_id: str,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Lists all source documents currently indexed within a reference collection."""
     repo = get_local_repo()
     col = repo.get_collection(collection_id)
@@ -166,7 +167,7 @@ async def add_document_to_collection(
     collection_id: str,
     request: AddDocumentToCollectionRequest,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Links an existing processed document into a reference collection."""
     repo = get_local_repo()
     col = repo.get_collection(collection_id)

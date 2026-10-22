@@ -3,10 +3,9 @@ Lexical Tokenizer with Exact Code-Point and UTF-16 Offset Preservation
 Handles English, Hindi (Devanagari matras & danda), Telugu (Brahmic viramas), and mixed texts.
 """
 
-from dataclasses import dataclass
 import re
 import unicodedata
-from typing import List, Tuple
+from dataclasses import dataclass
 
 # Token pattern that does not split Indic combining marks (matras, viramas)
 TOKEN_REGEX = re.compile(r'[^\s,.!?;:\'\"()\[\]{}«»—–।॥/\\`~@#$%^&*+=<>|]+', re.UNICODE)
@@ -24,7 +23,7 @@ class LexicalToken:
     script: str            # Script identifier: 'LATIN', 'DEVANAGARI', 'TELUGU', 'COMMON'
 
 
-def build_utf16_offset_map(text: str) -> List[int]:
+def build_utf16_offset_map(text: str) -> list[int]:
     """
     Builds a lookup table mapping each Unicode character code-point index to its
     corresponding UTF-16 code unit offset. For characters in the BMP (code point <= 0xFFFF),
@@ -68,7 +67,7 @@ class LexicalTokenizer:
     Deterministic tokenizer producing tokens with exact code-point and UTF-16 coordinates.
     """
 
-    def tokenize(self, raw_text: str) -> List[LexicalToken]:
+    def tokenize(self, raw_text: str) -> list[LexicalToken]:
         """
         Tokenizes raw input text while maintaining strict offset invariant:
         raw_text[token.start_char : token.end_char] == token.text
@@ -77,7 +76,7 @@ class LexicalTokenizer:
             return []
 
         utf16_map = build_utf16_offset_map(raw_text)
-        tokens: List[LexicalToken] = []
+        tokens: list[LexicalToken] = []
 
         token_idx = 0
         for match in TOKEN_REGEX.finditer(raw_text):

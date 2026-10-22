@@ -3,28 +3,8 @@ Unit Tests for Database Models and Schema Integrity
 Verifies SQLAlchemy metadata matches Phase 0 Data Architecture
 """
 
-import pytest
-from sqlalchemy import inspect
+import plagiarism.db.models  # noqa: F401
 from plagiarism.db.base import Base
-from plagiarism.db.models import (
-    User,
-    Collection,
-    CollectionPermission,
-    Document,
-    CollectionDocument,
-    DocumentSource,
-    Passage,
-    Fingerprint,
-    ModelConfiguration,
-    Embedding,
-    Analysis,
-    AnalysisJob,
-    Finding,
-    Exclusion,
-    Review,
-    AuditEvent,
-    DeletionLedger,
-)
 
 EXPECTED_TABLES = {
     "users",

@@ -4,12 +4,13 @@ Tokenizer, Rolling Hash, Winnowing, BM25, Aligner, and Coverage.
 """
 
 import pytest
-from plagiarism.services.lexical.tokenizer import LexicalTokenizer, detect_token_script
-from plagiarism.services.lexical.rolling_hash import fnv1a_64, compute_kgram_hash, RollingHash
-from plagiarism.services.lexical.winnowing import WinnowingEngine, Fingerprint
-from plagiarism.services.lexical.bm25 import BM25Index
+
 from plagiarism.services.lexical.aligner import PassageAligner
+from plagiarism.services.lexical.bm25 import BM25Index
 from plagiarism.services.lexical.coverage import CoverageCalculator, merge_token_intervals
+from plagiarism.services.lexical.rolling_hash import RollingHash, compute_kgram_hash, fnv1a_64
+from plagiarism.services.lexical.tokenizer import LexicalTokenizer
+from plagiarism.services.lexical.winnowing import WinnowingEngine
 
 
 def test_tokenizer_offsets_and_multilingual():

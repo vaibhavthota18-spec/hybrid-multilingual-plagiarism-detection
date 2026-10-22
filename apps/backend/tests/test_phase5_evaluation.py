@@ -6,7 +6,28 @@ and evaluation runner execution.
 """
 
 from pathlib import Path
+
 import pytest
+
+from plagiarism.evaluation.classification_metrics import (
+    compute_classification_metrics,
+    compute_wilson_interval,
+)
+from plagiarism.evaluation.dataset_loader import (
+    DatasetValidationError,
+    SplitLeakageError,
+    load_benchmark_dataset,
+    validate_example_spans,
+    validate_split_leakage,
+)
+from plagiarism.evaluation.localization_metrics import (
+    compute_boundary_error,
+    compute_localization_metrics,
+    compute_span_iou,
+    merge_intervals,
+)
+from plagiarism.evaluation.retrieval_metrics import compute_retrieval_metrics
+from plagiarism.evaluation.runner import EvaluationRunner
 from plagiarism.evaluation.schemas import (
     DifficultyLevel,
     EvaluationDataset,
@@ -15,28 +36,7 @@ from plagiarism.evaluation.schemas import (
     PlagiarismCategory,
     SplitPartition,
 )
-from plagiarism.evaluation.classification_metrics import (
-    compute_classification_metrics,
-    compute_wilson_interval,
-)
-from plagiarism.evaluation.retrieval_metrics import compute_retrieval_metrics
-from plagiarism.evaluation.localization_metrics import (
-    compute_boundary_error,
-    compute_interval_overlap,
-    compute_localization_metrics,
-    compute_span_iou,
-    merge_intervals,
-)
 from plagiarism.evaluation.statistical import compute_bootstrap_ci
-from plagiarism.evaluation.dataset_loader import (
-    DatasetValidationError,
-    SplitLeakageError,
-    load_benchmark_dataset,
-    validate_example_spans,
-    validate_split_leakage,
-)
-from plagiarism.evaluation.runner import EvaluationRunner
-
 
 # =============================================================================
 # 1. Classification Metrics & Wilson Score Tests

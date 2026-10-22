@@ -3,26 +3,27 @@ Canonical Error Handling and RFC 7807 Problem Serialization
 Adheres to contracts/openapi.yaml ErrorEnvelope schema
 """
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
+
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 
 class ErrorDetail(BaseModel):
-    field: Optional[str] = None
+    field: str | None = None
     issue: str
-    location: Optional[str] = None
+    location: str | None = None
 
 
 class ErrorBody(BaseModel):
     code: str
     message: str
     status: int
-    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    request_id: Optional[str] = None
-    details: Optional[List[Dict[str, Any]]] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
+    request_id: str | None = None
+    details: list[dict[str, Any]] | None = None
 
 
 class ErrorEnvelope(BaseModel):
@@ -36,7 +37,7 @@ class AppError(Exception):
         code: str,
         message: str,
         status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR,
-        details: Optional[List[Dict[str, Any]]] = None
+        details: list[dict[str, Any]] | None = None
     ):
         super().__init__(message)
         self.code = code
@@ -66,12 +67,12 @@ class ConflictError(AppError):
 
 
 class ValidationError(AppError):
-    def __init__(self, message: str = "Invalid request payload", details: Optional[List[Dict[str, Any]]] = None):
+    def __init__(self, message: str = "Invalid request payload", details: list[dict[str, Any]] | None = None):
         super().__init__(code="VALIDATION_ERROR", message=message, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, details=details)
 
 
 class BadRequestError(AppError):
-    def __init__(self, message: str = "Bad request", code: str = "BAD_REQUEST", details: Optional[List[Dict[str, Any]]] = None):
+    def __init__(self, message: str = "Bad request", code: str = "BAD_REQUEST", details: list[dict[str, Any]] | None = None):
         super().__init__(code=code, message=message, status_code=status.HTTP_400_BAD_REQUEST, details=details)
 
 
@@ -89,15 +90,15 @@ def create_error_response(
     status_code: int,
     code: str,
     message: str,
-    request_id: Optional[str] = None,
-    details: Optional[List[Dict[str, Any]]] = None
+    request_id: str | None = None,
+    details: list[dict[str, Any]] | None = None
 ) -> JSONResponse:
     """Builds an RFC 7807 compliant JSONResponse matching openapi.yaml ErrorEnvelope."""
     body = ErrorBody(
         code=code,
         message=message,
         status=status_code,
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         request_id=request_id,
         details=details
     )

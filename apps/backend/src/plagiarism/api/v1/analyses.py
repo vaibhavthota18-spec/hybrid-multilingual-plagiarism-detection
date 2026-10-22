@@ -5,29 +5,28 @@ Provides endpoints to create, monitor, cancel, list, and inspect similarity anal
 
 import os
 import re
-import json as json_lib
 import uuid
+from typing import Any
 from urllib.parse import quote
-from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, Depends, Query, Response, status
 
-from plagiarism.core.security import get_current_user_or_dev
 from plagiarism.core.errors import BadRequestError, NotFoundError
+from plagiarism.core.security import get_current_user_or_dev
 from plagiarism.domain.models import (
-    CreateAnalysisRequest,
     AnalysisJobStatus,
     AnalysisResult,
     AnalysisSummary,
-    SimilarityFinding,
-    SourceBreakdown,
+    CreateAnalysisRequest,
     ReviewFindingRequest,
     ReviewFindingResponse,
+    SimilarityFinding,
+    SourceBreakdown,
 )
-from plagiarism.storage.local_db import LocalMetadataRepository, get_local_repo
 from plagiarism.services.executor import get_task_executor
-from plagiarism.services.analysis_service import get_analysis_service
 from plagiarism.services.hybrid_service import get_hybrid_service
 from plagiarism.services.reports.report_generator import ReportGenerator
+from plagiarism.storage.local_db import LocalMetadataRepository, get_local_repo
 
 router = APIRouter(prefix="/analyses", tags=["Analyses"])
 
@@ -47,7 +46,7 @@ def extract_user_id(user: Any) -> str:
 )
 async def get_model_information(
     current_user: Any = Depends(get_current_user_or_dev),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Returns local embedding model details and execution device."""
     from plagiarism.services.semantic.provider import get_embedding_provider
     provider = get_embedding_provider()
@@ -160,7 +159,7 @@ async def list_analyses(
     offset: int = Query(0, ge=0),
     current_user: Any = Depends(get_current_user_or_dev),
     repo: LocalMetadataRepository = Depends(get_local_repo)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     user_id = extract_user_id(current_user)
     records, total = repo.list_analyses(owner_user_id=user_id, limit=limit, offset=offset)
 
@@ -201,7 +200,7 @@ async def list_analyses(
 )
 async def get_analysis_results(
     analysis_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user_or_dev),
+    current_user: dict[str, Any] = Depends(get_current_user_or_dev),
     repo: LocalMetadataRepository = Depends(get_local_repo)
 ) -> AnalysisResult:
     analysis = repo.get_analysis(analysis_id)
@@ -287,7 +286,7 @@ async def get_analysis_results(
 )
 async def get_analysis_status(
     analysis_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user_or_dev),
+    current_user: dict[str, Any] = Depends(get_current_user_or_dev),
     repo: LocalMetadataRepository = Depends(get_local_repo)
 ) -> AnalysisJobStatus:
     analysis = repo.get_analysis(analysis_id)
@@ -315,7 +314,7 @@ async def get_analysis_status(
 )
 async def cancel_analysis(
     analysis_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user_or_dev),
+    current_user: dict[str, Any] = Depends(get_current_user_or_dev),
     repo: LocalMetadataRepository = Depends(get_local_repo)
 ) -> AnalysisJobStatus:
     analysis = repo.get_analysis(analysis_id)
@@ -346,15 +345,15 @@ async def cancel_analysis(
 
 @router.get(
     "/{analysis_id}/findings",
-    response_model=List[SimilarityFinding],
+    response_model=list[SimilarityFinding],
     summary="Retrieve Findings for an Analysis",
     operation_id="getAnalysisFindings"
 )
 async def get_analysis_findings_endpoint(
     analysis_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user_or_dev),
+    current_user: dict[str, Any] = Depends(get_current_user_or_dev),
     repo: LocalMetadataRepository = Depends(get_local_repo)
-) -> List[SimilarityFinding]:
+) -> list[SimilarityFinding]:
     analysis = repo.get_analysis(analysis_id)
     if not analysis:
         raise NotFoundError(f"Analysis {analysis_id} not found")
@@ -488,7 +487,7 @@ async def get_analysis_report(
     format: str = Query("json", description="Report format: 'pdf', 'html', or 'json'"),
     include_notes: bool = Query(True),
     language: str = Query("en"),
-    current_user: Dict[str, Any] = Depends(get_current_user_or_dev),
+    current_user: dict[str, Any] = Depends(get_current_user_or_dev),
     repo: LocalMetadataRepository = Depends(get_local_repo)
 ) -> Any:
     analysis = repo.get_analysis(analysis_id)
@@ -502,8 +501,6 @@ async def get_analysis_report(
     # Construct safe, human-readable filename (e.g. AOA_Syllabus_Similarity_Report.pdf)
     sub_name = analysis.get("submission_filename") or (doc_meta.get("filename") if doc_meta else None) or "Document"
     base_name = os.path.splitext(sub_name)[0]
-    import re
-    from urllib.parse import quote
     clean_name = re.sub(r'[^a-zA-Z0-9_\-\.]', '_', base_name).strip('_')
     if not clean_name:
         clean_name = f"Similarity_Report_{analysis_id[:8]}"

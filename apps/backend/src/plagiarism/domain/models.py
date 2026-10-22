@@ -4,7 +4,7 @@ Adheres to Phase 0 contracts and terminology
 """
 
 from enum import Enum
-from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -60,7 +60,7 @@ class HealthStatus(BaseModel):
     database: str = Field(default="connected", examples=["connected"])
     redis: str = Field(default="connected", examples=["connected"])
     worker_pool: str = Field(default="operational", examples=["operational"])
-    version: Optional[str] = Field(default="0.1.0", description="API version")
+    version: str | None = Field(default="0.1.0", description="API version")
 
 
 class DetectionMode(str, Enum):
@@ -72,10 +72,10 @@ class DetectionMode(str, Enum):
 class CreateAnalysisRequest(BaseModel):
     submission_document_id: str = Field(..., description="UUID of the submission document")
     mode: str = Field(..., description="Comparison mode: direct, one_to_many, or corpus")
-    detection_mode: Optional[str] = Field(default="hybrid", description="Detection mode: lexical, semantic, or hybrid")
-    reference_document_id: Optional[str] = Field(None, description="Required for direct mode")
-    reference_document_ids: Optional[list[str]] = Field(None, description="Required for one_to_many mode")
-    collection_id: Optional[str] = Field(None, description="Required for corpus mode")
+    detection_mode: str | None = Field(default="hybrid", description="Detection mode: lexical, semantic, or hybrid")
+    reference_document_id: str | None = Field(None, description="Required for direct mode")
+    reference_document_ids: list[str] | None = Field(None, description="Required for one_to_many mode")
+    collection_id: str | None = Field(None, description="Required for corpus mode")
     exclude_citations: bool = Field(True, description="Exclude quoted and cited regions")
     exclude_references: bool = Field(True, description="Exclude reference bibliography lists")
 
@@ -84,12 +84,12 @@ class AnalysisJobStatus(BaseModel):
     job_id: str
     analysis_id: str
     status: str
-    current_step: Optional[str] = None
+    current_step: str | None = None
     progress_percent: int = 0
-    error_code: Optional[str] = None
-    error_message: Optional[str] = None
+    error_code: str | None = None
+    error_message: str | None = None
     created_at: str
-    completed_at: Optional[str] = None
+    completed_at: str | None = None
 
 
 class SimilarityFinding(BaseModel):
@@ -104,21 +104,21 @@ class SimilarityFinding(BaseModel):
     reference_start_offset: int
     reference_end_offset: int
     reference_excerpt: str
-    reference_page_number: Optional[int] = 1
+    reference_page_number: int | None = 1
     lexical_similarity: float = 1.0
     semantic_similarity: float = 0.0
     is_quoted: bool = False
     is_excluded: bool = False
-    language_pair: Optional[str] = None
-    model_name: Optional[str] = None
-    review_decision: Optional[str] = "unreviewed"
-    reviewer_notes: Optional[str] = ""
-    reviewer_updated_at: Optional[str] = None
+    language_pair: str | None = None
+    model_name: str | None = None
+    review_decision: str | None = "unreviewed"
+    reviewer_notes: str | None = ""
+    reviewer_updated_at: str | None = None
 
 
 class ReviewFindingRequest(BaseModel):
     decision: str = Field(..., description="Review decision: 'keep', 'exclude', 'quoted_cited', 'needs_review', or 'unreviewed'")
-    notes: Optional[str] = Field(None, description="Optional reviewer notes or rationale")
+    notes: str | None = Field(None, description="Optional reviewer notes or rationale")
 
 
 class ReviewFindingResponse(BaseModel):
@@ -142,7 +142,7 @@ class SourceBreakdown(BaseModel):
 class AnalysisResult(BaseModel):
     analysis_id: str
     submission_document_id: str
-    submission_filename: Optional[str] = None
+    submission_filename: str | None = None
     mode: str
     detection_mode: str = "hybrid"
     status: str = "completed"
@@ -150,22 +150,22 @@ class AnalysisResult(BaseModel):
     overall_semantic_coverage_percent: float = 0.0
     net_adjusted_score_percent: float = 0.0
     hybrid_evidence_coverage_percent: float = 0.0
-    reviewer_adjusted_coverage_percent: Optional[float] = None
-    reviewed_findings_count: Optional[int] = 0
-    reviewer_notes: Optional[str] = ""
+    reviewer_adjusted_coverage_percent: float | None = None
+    reviewed_findings_count: int | None = 0
+    reviewer_notes: str | None = ""
     matched_source_count: int = 0
     total_findings_count: int = 0
     findings: list[SimilarityFinding] = []
     sources: list[SourceBreakdown] = []
-    model_metadata: Optional[dict] = None
-    created_at: Optional[str] = None
-    completed_at: Optional[str] = None
+    model_metadata: dict | None = None
+    created_at: str | None = None
+    completed_at: str | None = None
 
 
 class AnalysisSummary(BaseModel):
     analysis_id: str
     submission_document_id: str
-    submission_filename: Optional[str] = None
+    submission_filename: str | None = None
     mode: str
     detection_mode: str = "hybrid"
     status: str
@@ -174,7 +174,7 @@ class AnalysisSummary(BaseModel):
     net_score: float = 0.0
     matched_source_count: int = 0
     total_findings_count: int = 0
-    processing_time_ms: Optional[int] = None
+    processing_time_ms: int | None = None
     created_at: str
 
 

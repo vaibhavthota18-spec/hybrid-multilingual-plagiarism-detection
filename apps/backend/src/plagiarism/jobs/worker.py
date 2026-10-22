@@ -3,7 +3,6 @@ Background Worker Entrypoint for Python RQ Daemon
 """
 
 import logging
-import os
 import sys
 
 from plagiarism.core.config import get_settings
@@ -17,7 +16,7 @@ def run_worker():
     """Starts the Python RQ worker loop listening on configured Redis queues."""
     settings = get_settings()
     setup_logging(level=settings.LOG_LEVEL, service_name="plagiarism-worker")
-    
+
     logger.info(
         "Starting Plagiarism Platform background worker daemon",
         extra={"queue": settings.WORKER_QUEUE_NAME, "environment": settings.ENVIRONMENT}

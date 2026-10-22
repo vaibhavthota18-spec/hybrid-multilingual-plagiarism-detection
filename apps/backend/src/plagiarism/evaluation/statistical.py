@@ -4,15 +4,17 @@ Provides deterministic, seed-fixed non-parametric bootstrap resampling
 for classification and localization metrics.
 """
 
-from typing import Callable, List, Tuple
+from collections.abc import Callable
+
 import numpy as np
+
 from plagiarism.evaluation.schemas import BootstrapConfidenceInterval
 
 
 def compute_bootstrap_ci(
-    y_true: List[bool],
-    y_pred: List[bool],
-    metric_func: Callable[[List[bool], List[bool]], float],
+    y_true: list[bool],
+    y_pred: list[bool],
+    metric_func: Callable[[list[bool], list[bool]], float],
     metric_name: str,
     n_resamples: int = 1000,
     confidence_level: float = 0.95,

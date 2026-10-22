@@ -4,14 +4,13 @@ Verifies English, Hindi, and Telugu script identification, NFC normalization,
 combining mark preservation, and code-point offset mappings.
 """
 
-import pytest
 from plagiarism.services.preprocessing import (
+    OffsetMapper,
+    code_point_to_utf16_offset,
     identify_language,
     normalize_text_nfc,
-    OffsetMapper,
-    tokenize_unicode,
     preprocess_text,
-    code_point_to_utf16_offset,
+    tokenize_unicode,
 )
 
 

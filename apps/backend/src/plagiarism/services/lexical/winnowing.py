@@ -6,10 +6,9 @@ Any shared verbatim token sequence of length >= t = k + w - 1 is guaranteed to s
 
 from collections import deque
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
-from plagiarism.services.lexical.tokenizer import LexicalToken
 from plagiarism.services.lexical.rolling_hash import RollingHash, fnv1a_64
+from plagiarism.services.lexical.tokenizer import LexicalToken
 
 
 @dataclass(frozen=True)
@@ -37,7 +36,7 @@ class WinnowingEngine:
         self.algorithm_version = algorithm_version
         self.t = k + w - 1
 
-    def fingerprint_tokens(self, tokens: List[LexicalToken]) -> List[Fingerprint]:
+    def fingerprint_tokens(self, tokens: list[LexicalToken]) -> list[Fingerprint]:
         """
         Runs Winnowing across an ordered list of LexicalTokens.
         Returns a deduplicated list of selected Fingerprint records with exact original text offsets.
@@ -74,7 +73,7 @@ class WinnowingEngine:
 
         # 2. Compute sliding k-gram polynomial hashes
         rh = RollingHash(token_hashes, k=self.k)
-        kgrams: List[Tuple[int, int]] = rh.compute_all()
+        kgrams: list[tuple[int, int]] = rh.compute_all()
         num_kgrams = len(kgrams)
 
         if num_kgrams == 0:
@@ -105,8 +104,8 @@ class WinnowingEngine:
 
         # 3. Standard Winnowing over sliding windows of size w
         # Uses monotonic deque for O(N) sliding-window minimum with rightmost tie-breaking
-        selected_fingerprints: List[Fingerprint] = []
-        last_recorded_pos: Optional[int] = None
+        selected_fingerprints: list[Fingerprint] = []
+        last_recorded_pos: int | None = None
 
         # Each element in deque is (kgram_index, hash_value)
         # We maintain elements in strictly increasing order of hash_value.

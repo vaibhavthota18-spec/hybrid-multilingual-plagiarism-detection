@@ -4,12 +4,13 @@ Verifies path traversal defense, file streaming limits, database persistence acr
 and cascade deletions.
 """
 
-import pytest
 from pathlib import Path
 
+import pytest
+
+from plagiarism.core.errors import BadRequestError
 from plagiarism.storage.local_db import LocalMetadataRepository
 from plagiarism.storage.private_store import PrivateStorageManager, sanitize_filename
-from plagiarism.core.errors import BadRequestError, PayloadTooLargeError
 
 
 def test_sanitize_filename():
@@ -33,7 +34,7 @@ def test_sqlite_metadata_persistence_across_restart(tmp_path: Path):
     closing, and re-opening on the exact same SQLite file.
     """
     db_file = tmp_path / "test_persistence.db"
-    
+
     # Session 1: write document and passages
     repo1 = LocalMetadataRepository(db_path=db_file)
     doc_id = "doc-persist-001"

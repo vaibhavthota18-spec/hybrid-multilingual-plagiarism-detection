@@ -5,9 +5,8 @@ Structured JSON Logging with Request Correlation and Sensitive Field Redaction
 import json
 import logging
 import sys
-from datetime import datetime, timezone
-from typing import Any, Dict
-
+from datetime import UTC, datetime
+from typing import Any
 
 REDACTED_KEYS = {"password", "token", "secret", "authorization", "hashed_password", "jwt_secret"}
 
@@ -21,8 +20,8 @@ class JSONLogFormatter(logging.Formatter):
         self.service_name = service_name
 
     def format(self, record: logging.LogRecord) -> str:
-        log_obj: Dict[str, Any] = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+        log_obj: dict[str, Any] = {
+            "timestamp": datetime.now(UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "service": self.service_name,

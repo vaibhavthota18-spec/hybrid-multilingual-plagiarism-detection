@@ -3,9 +3,9 @@ Pytest Test Fixtures and Test Environment Configuration
 """
 
 import os
+from typing import Any
+
 import pytest
-from datetime import datetime, timezone
-from typing import Dict, Generator, Any
 
 # Ensure test environment variables are set before any application import
 os.environ["ENVIRONMENT"] = "testing"
@@ -30,7 +30,7 @@ def test_settings():
 
 
 @pytest.fixture
-def mock_user_student() -> Dict[str, Any]:
+def mock_user_student() -> dict[str, Any]:
     return {
         "sub": "00000000-0000-0000-0000-000000000001",
         "user_id": "00000000-0000-0000-0000-000000000001",
@@ -41,7 +41,7 @@ def mock_user_student() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def mock_user_faculty() -> Dict[str, Any]:
+def mock_user_faculty() -> dict[str, Any]:
     return {
         "sub": "00000000-0000-0000-0000-000000000002",
         "user_id": "00000000-0000-0000-0000-000000000002",
@@ -52,7 +52,7 @@ def mock_user_faculty() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def mock_user_admin() -> Dict[str, Any]:
+def mock_user_admin() -> dict[str, Any]:
     return {
         "sub": "00000000-0000-0000-0000-000000000003",
         "user_id": "00000000-0000-0000-0000-000000000003",
@@ -81,15 +81,15 @@ def admin_token(mock_user_admin) -> str:
 
 
 @pytest.fixture
-def student_auth_headers(student_token) -> Dict[str, str]:
+def student_auth_headers(student_token) -> dict[str, str]:
     return {"Authorization": f"Bearer {student_token}"}
 
 
 @pytest.fixture
-def faculty_auth_headers(faculty_token) -> Dict[str, str]:
+def faculty_auth_headers(faculty_token) -> dict[str, str]:
     return {"Authorization": f"Bearer {faculty_token}"}
 
 
 @pytest.fixture
-def admin_auth_headers(admin_token) -> Dict[str, str]:
+def admin_auth_headers(admin_token) -> dict[str, str]:
     return {"Authorization": f"Bearer {admin_token}"}

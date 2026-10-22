@@ -7,7 +7,6 @@ Uses sentence and paragraph boundaries across English, Hindi, and Telugu.
 import re
 import uuid
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
 
 from plagiarism.services.preprocessing import identify_language, tokenize_unicode
 
@@ -30,7 +29,7 @@ class SegmentedPassage:
 SENTENCE_END_PATTERN = re.compile(r'([.?!।॥]+(?:\s+|\n+|$))')
 
 
-def split_sentences_with_offsets(text: str) -> List[Tuple[str, int, int]]:
+def split_sentences_with_offsets(text: str) -> list[tuple[str, int, int]]:
     """
     Splits text into sentences while tracking exact code-point start and end offsets [start, end).
     """
@@ -70,10 +69,10 @@ def segment_document_passages(
     document_id: str,
     original_text: str,
     detected_language: str = "en",
-    page_texts: Optional[List[Tuple[int, str]]] = None,
+    page_texts: list[tuple[int, str]] | None = None,
     target_tokens_per_passage: int = 120,
     min_tokens_per_passage: int = 12
-) -> List[SegmentedPassage]:
+) -> list[SegmentedPassage]:
     """
     Deterministically segments original text into contiguous passages.
     Preserves exact [start_offset, end_offset) into original_text.
@@ -100,7 +99,7 @@ def segment_document_passages(
         return 1
 
     sentences = split_sentences_with_offsets(original_text)
-    passages: List[SegmentedPassage] = []
+    passages: list[SegmentedPassage] = []
 
     current_chunk_sentences = []
     current_chunk_tokens = 0

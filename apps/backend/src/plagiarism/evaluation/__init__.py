@@ -2,6 +2,23 @@
 Evaluation package for Phase 5 Scientific Benchmarking and Validation.
 """
 
+from plagiarism.evaluation.classification_metrics import (
+    compute_classification_metrics,
+    compute_wilson_interval,
+)
+from plagiarism.evaluation.dataset_loader import (
+    DatasetValidationError,
+    SplitLeakageError,
+    load_benchmark_dataset,
+    validate_split_leakage,
+)
+from plagiarism.evaluation.localization_metrics import (
+    compute_boundary_error,
+    compute_localization_metrics,
+    compute_span_iou,
+)
+from plagiarism.evaluation.retrieval_metrics import compute_retrieval_metrics
+from plagiarism.evaluation.runner import EvaluationRunner
 from plagiarism.evaluation.schemas import (
     ClassificationMetrics,
     EvaluationDataset,
@@ -14,24 +31,7 @@ from plagiarism.evaluation.schemas import (
     RetrievalMetrics,
     SplitPartition,
 )
-from plagiarism.evaluation.classification_metrics import (
-    compute_classification_metrics,
-    compute_wilson_interval,
-)
-from plagiarism.evaluation.retrieval_metrics import compute_retrieval_metrics
-from plagiarism.evaluation.localization_metrics import (
-    compute_boundary_error,
-    compute_localization_metrics,
-    compute_span_iou,
-)
 from plagiarism.evaluation.statistical import compute_bootstrap_ci
-from plagiarism.evaluation.dataset_loader import (
-    DatasetValidationError,
-    SplitLeakageError,
-    load_benchmark_dataset,
-    validate_split_leakage,
-)
-from plagiarism.evaluation.runner import EvaluationRunner
 
 __all__ = [
     "ClassificationMetrics",

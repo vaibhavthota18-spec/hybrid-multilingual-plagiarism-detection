@@ -5,8 +5,10 @@ multilingual alignment, and coverage calculation on live test client.
 """
 
 import io
+
 import pytest
 from fastapi.testclient import TestClient
+
 from plagiarism.main import app
 from plagiarism.storage.local_db import get_local_repo
 

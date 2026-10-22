@@ -2,17 +2,17 @@
 Authentication and Identity Verification Foundation
 """
 
-from typing import Dict, Optional
+
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel
 
 from plagiarism.core.config import get_settings
-from plagiarism.core.errors import ForbiddenError, UnauthorizedError
+from plagiarism.core.errors import ForbiddenError
 from plagiarism.core.security import (
     UserPrincipal,
     create_access_token,
     get_current_user,
-    require_role
+    require_role,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -22,7 +22,7 @@ class TestTokenRequest(BaseModel):
     user_id: str = "00000000-0000-0000-0000-000000000001"
     email: str = "test.user@plagiarism.internal"
     role: str = "STUDENT"
-    expires_minutes: Optional[int] = 60
+    expires_minutes: int | None = 60
 
 
 class TokenResponse(BaseModel):
@@ -79,13 +79,13 @@ async def get_current_user_profile(
 
 @router.get(
     "/admin-probe",
-    response_model=Dict[str, str],
+    response_model=dict[str, str],
     status_code=status.HTTP_200_OK,
     summary="RBAC Probe Endpoint (Admin Only)"
 )
 async def admin_role_probe(
     admin_user: UserPrincipal = Depends(require_role(["ADMIN"]))
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Demonstrates RBAC enforcement: accessible only to users with ADMIN role.
     """

@@ -8,7 +8,6 @@ import io
 import logging
 import os
 from pathlib import Path
-from typing import BinaryIO, Optional, Tuple
 
 from fastapi import UploadFile
 
@@ -54,7 +53,7 @@ class S3StorageManager:
         upload_file: UploadFile,
         document_id: str,
         extension: str
-    ) -> Tuple[str, int, str]:
+    ) -> tuple[str, int, str]:
         """
         Streams an uploaded file directly to S3 private bucket.
         Returns: (s3_uri, total_bytes_written, sha256_hex_digest)

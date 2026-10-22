@@ -4,9 +4,8 @@ Finds, expands, verifies, and merges exact and near-exact matching spans between
 submission and reference documents, generating verified source-linked findings.
 """
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 import uuid
+from dataclasses import dataclass
 
 from plagiarism.services.lexical.tokenizer import LexicalToken
 
@@ -31,7 +30,7 @@ class AlignedFinding:
     reference_excerpt: str             # Reference original text excerpt
     matched_token_count: int           # Count of matched tokens
     lexical_similarity: float          # Similarity ratio (1.0 for exact, >= 0.85 for near-exact)
-    reference_page_number: Optional[int] = 1
+    reference_page_number: int | None = 1
     is_quoted: bool = False
     is_excluded: bool = False
 
@@ -55,12 +54,12 @@ class PassageAligner:
         self,
         submission_id: str,
         submission_raw_text: str,
-        submission_tokens: List[LexicalToken],
+        submission_tokens: list[LexicalToken],
         reference_id: str,
         reference_title: str,
         reference_raw_text: str,
-        reference_tokens: List[LexicalToken],
-    ) -> List[AlignedFinding]:
+        reference_tokens: list[LexicalToken],
+    ) -> list[AlignedFinding]:
         """
         Executes fine-grained alignment between submission and a candidate reference document.
         Returns a deduplicated, non-overlapping list of verified AlignedFinding instances.
@@ -76,13 +75,13 @@ class PassageAligner:
 
         # 1. Build an inverted index of small n-grams (seed size 5) on reference document
         seed_size = min(5, effective_min_tokens)
-        ref_seeds: Dict[Tuple[str, ...], List[int]] = {}
+        ref_seeds: dict[tuple[str, ...], list[int]] = {}
         for r in range(n_ref - seed_size + 1):
             gram = tuple(t.norm_text for t in reference_tokens[r : r + seed_size])
             ref_seeds.setdefault(gram, []).append(r)
 
         # 2. Scan submission tokens to discover seed matches and expand
-        raw_spans: List[Tuple[int, int, int, int]] = []  # (sub_start, sub_end, ref_start, ref_end)
+        raw_spans: list[tuple[int, int, int, int]] = []  # (sub_start, sub_end, ref_start, ref_end)
 
         s = 0
         while s <= n_sub - seed_size:
@@ -136,7 +135,7 @@ class PassageAligner:
         merged_spans = self._merge_adjacent_spans(raw_spans)
 
         # 4. Construct verified AlignedFinding instances
-        findings: List[AlignedFinding] = []
+        findings: list[AlignedFinding] = []
         for (sub_start, sub_end, ref_start, ref_end, is_near_exact) in merged_spans:
             matched_count = sub_end - sub_start
 
@@ -196,8 +195,8 @@ class PassageAligner:
 
     def _merge_adjacent_spans(
         self,
-        spans: List[Tuple[int, int, int, int]]
-    ) -> List[Tuple[int, int, int, int, bool]]:
+        spans: list[tuple[int, int, int, int]]
+    ) -> list[tuple[int, int, int, int, bool]]:
         """
         Sorts and merges spans that are adjacent or separated by small gaps.
         Returns list of (sub_start, sub_end, ref_start, ref_end, is_near_exact).
@@ -208,7 +207,7 @@ class PassageAligner:
         # Sort spans by submission start
         spans.sort(key=lambda x: (x[0], x[2]))
 
-        merged: List[Tuple[int, int, int, int, bool]] = []
+        merged: list[tuple[int, int, int, int, bool]] = []
         curr_sub_start, curr_sub_end, curr_ref_start, curr_ref_end = spans[0]
         has_gap = False
 

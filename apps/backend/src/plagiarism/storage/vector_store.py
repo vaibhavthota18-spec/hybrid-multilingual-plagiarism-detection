@@ -4,13 +4,11 @@ Implements bounded exact cosine search over dense embeddings using safe binary B
 Preserves abstraction boundaries for future production pgvector migration (ADR-0004).
 """
 
+import logging
+import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import hashlib
-import logging
-import sqlite3
-import threading
-from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 
 from plagiarism.core.config import get_settings
@@ -50,21 +48,21 @@ class VectorIndex(ABC):
     """Abstract interface for dense vector indexing and retrieval."""
 
     @abstractmethod
-    def store_document_embeddings(self, records: List[PassageVectorRecord]) -> None:
+    def store_document_embeddings(self, records: list[PassageVectorRecord]) -> None:
         pass
 
     @abstractmethod
-    def get_document_embeddings(self, document_id: str) -> List[PassageVectorRecord]:
+    def get_document_embeddings(self, document_id: str) -> list[PassageVectorRecord]:
         pass
 
     @abstractmethod
     def search_candidates(
         self,
         query_vectors: np.ndarray,
-        candidate_document_ids: List[str],
+        candidate_document_ids: list[str],
         top_k: int = 5,
         min_similarity: float = 0.50,
-    ) -> List[List[VectorSearchResult]]:
+    ) -> list[list[VectorSearchResult]]:
         """
         Returns list of top_k results for each query vector.
         """
@@ -86,7 +84,7 @@ class SQLiteVectorRepository(VectorIndex):
     Uses vectorized NumPy inner product for exact cosine search over candidate pools.
     """
 
-    def __init__(self, repo: Optional[LocalMetadataRepository] = None):
+    def __init__(self, repo: LocalMetadataRepository | None = None):
         self.repo = repo or get_local_repo()
         self._lock = threading.RLock()
         self._ensure_schema()
@@ -121,7 +119,7 @@ class SQLiteVectorRepository(VectorIndex):
             finally:
                 conn.close()
 
-    def store_document_embeddings(self, records: List[PassageVectorRecord]) -> None:
+    def store_document_embeddings(self, records: list[PassageVectorRecord]) -> None:
         if not records:
             return
 
@@ -168,7 +166,7 @@ class SQLiteVectorRepository(VectorIndex):
             finally:
                 conn.close()
 
-    def get_document_embeddings(self, document_id: str) -> List[PassageVectorRecord]:
+    def get_document_embeddings(self, document_id: str) -> list[PassageVectorRecord]:
         with self._lock:
             conn = self.repo._get_connection()
             try:
@@ -187,7 +185,6 @@ class SQLiteVectorRepository(VectorIndex):
                 rows = cursor.fetchall()
                 records = []
                 for row in rows:
-                    dim = row["embedding_dim"]
                     vec = np.frombuffer(row["embedding"], dtype=np.float32)
                     records.append(
                         PassageVectorRecord(
@@ -240,10 +237,10 @@ class SQLiteVectorRepository(VectorIndex):
     def search_candidates(
         self,
         query_vectors: np.ndarray,
-        candidate_document_ids: List[str],
+        candidate_document_ids: list[str],
         top_k: int = 5,
         min_similarity: float = 0.50,
-    ) -> List[List[VectorSearchResult]]:
+    ) -> list[list[VectorSearchResult]]:
         """
         Computes cosine similarity matrix across query_vectors and candidate passages.
         Query vectors shape: (num_queries, dim).
@@ -292,13 +289,13 @@ class SQLiteVectorRepository(VectorIndex):
         sim_matrix = np.dot(query_vectors, ref_matrix.T)
         sim_matrix = np.clip(sim_matrix, -1.0, 1.0)
 
-        results_by_query: List[List[VectorSearchResult]] = []
+        results_by_query: list[list[VectorSearchResult]] = []
 
         for q_idx in range(query_vectors.shape[0]):
             scores = sim_matrix[q_idx]  # shape (N_ref,)
             # Sort descending
             sorted_indices = np.argsort(-scores)
-            q_results: List[VectorSearchResult] = []
+            q_results: list[VectorSearchResult] = []
 
             rank = 1
             for ref_idx in sorted_indices:
@@ -371,7 +368,7 @@ class PgVectorRepository(VectorIndex):
         await pgvector.asyncpg.register_vector(conn)
         return conn
 
-    def store_document_embeddings(self, records: List[PassageVectorRecord]) -> None:
+    def store_document_embeddings(self, records: list[PassageVectorRecord]) -> None:
         if not records:
             return
 
@@ -415,7 +412,7 @@ class PgVectorRepository(VectorIndex):
 
         self._run_async(_store())
 
-    def get_document_embeddings(self, document_id: str) -> List[PassageVectorRecord]:
+    def get_document_embeddings(self, document_id: str) -> list[PassageVectorRecord]:
         async def _fetch():
             conn = await self._get_conn()
             try:
@@ -461,17 +458,17 @@ class PgVectorRepository(VectorIndex):
     def search_candidates(
         self,
         query_vectors: np.ndarray,
-        candidate_document_ids: List[str],
+        candidate_document_ids: list[str],
         top_k: int = 5,
         min_similarity: float = 0.50,
-    ) -> List[List[VectorSearchResult]]:
+    ) -> list[list[VectorSearchResult]]:
         if not candidate_document_ids or query_vectors.size == 0:
             return [[] for _ in range(len(query_vectors))]
 
         async def _search():
             conn = await self._get_conn()
             try:
-                results_by_query: List[List[VectorSearchResult]] = []
+                results_by_query: list[list[VectorSearchResult]] = []
                 search_sql = """
                 SELECT passage_id, document_id, start_offset, end_offset,
                        text_content, 1 - (embedding <=> $1) AS cosine_similarity
@@ -544,7 +541,7 @@ class PgVectorRepository(VectorIndex):
         return self._run_async(_check())
 
 
-_vector_repo_instance: Optional[VectorIndex] = None
+_vector_repo_instance: VectorIndex | None = None
 
 
 def get_vector_repository() -> VectorIndex:

@@ -6,10 +6,9 @@ switching when running in containerized and cloud environments.
 
 import asyncio
 import concurrent.futures
-from datetime import datetime, timezone
-import json
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import UTC, datetime
+from typing import Any
 
 from plagiarism.core.config import get_settings
 
@@ -63,9 +62,9 @@ class PostgresMetadataRepository:
         storage_path: str,
         file_size_bytes: int,
         status: str = "queued",
-        title: Optional[str] = None
-    ) -> Dict[str, Any]:
-        now_iso = datetime.now(timezone.utc).isoformat()
+        title: str | None = None
+    ) -> dict[str, Any]:
+        now_iso = datetime.now(UTC).isoformat()
 
         async def _insert():
             conn = await self._get_conn()
@@ -133,7 +132,7 @@ class PostgresMetadataRepository:
             "title": title or filename
         }
 
-    def get_document(self, document_id: str) -> Optional[Dict[str, Any]]:
+    def get_document(self, document_id: str) -> dict[str, Any] | None:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -196,10 +195,10 @@ class PostgresMetadataRepository:
 
     def list_documents(
         self,
-        owner_user_id: Optional[str] = None,
+        owner_user_id: str | None = None,
         limit: int = 20,
         offset: int = 0
-    ) -> Tuple[List[Dict[str, Any]], int]:
+    ) -> tuple[list[dict[str, Any]], int]:
         async def _list():
             conn = await self._get_conn()
             try:
@@ -264,7 +263,7 @@ class PostgresMetadataRepository:
         return self._run_async(_delete())
 
     # 2. Passages
-    def insert_passages(self, passages: List[Dict[str, Any]]) -> None:
+    def insert_passages(self, passages: list[dict[str, Any]]) -> None:
         if not passages:
             return
 
@@ -300,7 +299,7 @@ class PostgresMetadataRepository:
 
         self._run_async(_insert())
 
-    def get_passages(self, document_id: str) -> List[Dict[str, Any]]:
+    def get_passages(self, document_id: str) -> list[dict[str, Any]]:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -324,7 +323,7 @@ class PostgresMetadataRepository:
     def save_fingerprints(
         self,
         document_id: str,
-        fingerprints: List[Any],
+        fingerprints: list[Any],
         algorithm_version: str = "winnowing-k25-w16-v1"
     ) -> int:
         if not fingerprints:
@@ -352,7 +351,7 @@ class PostgresMetadataRepository:
 
         return self._run_async(_save())
 
-    def get_fingerprints(self, document_id: str) -> List[Dict[str, Any]]:
+    def get_fingerprints(self, document_id: str) -> list[dict[str, Any]]:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -372,8 +371,8 @@ class PostgresMetadataRepository:
         return self._run_async(_get())
 
     def find_shared_fingerprints(
-        self, submission_id: str, candidate_ids: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, submission_id: str, candidate_ids: list[str]
+    ) -> list[dict[str, Any]]:
         if not candidate_ids:
             return []
 
@@ -403,10 +402,10 @@ class PostgresMetadataRepository:
         collection_id: str,
         name: str,
         owner_user_id: str,
-        description: Optional[str] = None,
+        description: str | None = None,
         is_public_within_tenant: bool = False
-    ) -> Dict[str, Any]:
-        now_iso = datetime.now(timezone.utc).isoformat()
+    ) -> dict[str, Any]:
+        now_iso = datetime.now(UTC).isoformat()
 
         async def _create():
             conn = await self._get_conn()
@@ -449,7 +448,7 @@ class PostgresMetadataRepository:
             "created_at": now_iso
         }
 
-    def get_collection(self, collection_id: str) -> Optional[Dict[str, Any]]:
+    def get_collection(self, collection_id: str) -> dict[str, Any] | None:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -469,8 +468,8 @@ class PostgresMetadataRepository:
         return self._run_async(_get())
 
     def list_collections(
-        self, owner_user_id: Optional[str] = None, limit: int = 20, offset: int = 0
-    ) -> Tuple[List[Dict[str, Any]], int]:
+        self, owner_user_id: str | None = None, limit: int = 20, offset: int = 0
+    ) -> tuple[list[dict[str, Any]], int]:
         async def _list():
             conn = await self._get_conn()
             try:
@@ -552,7 +551,7 @@ class PostgresMetadataRepository:
 
         return self._run_async(_remove())
 
-    def list_collection_documents(self, collection_id: str) -> List[Dict[str, Any]]:
+    def list_collection_documents(self, collection_id: str) -> list[dict[str, Any]]:
         async def _list():
             conn = await self._get_conn()
             try:
@@ -587,12 +586,12 @@ class PostgresMetadataRepository:
         owner_user_id: str,
         submission_document_id: str,
         mode: str,
-        reference_document_id: Optional[str] = None,
-        collection_id: Optional[str] = None,
-        candidate_metadata: Optional[Dict[str, Any]] = None,
+        reference_document_id: str | None = None,
+        collection_id: str | None = None,
+        candidate_metadata: dict[str, Any] | None = None,
         detection_mode: str = "hybrid"
-    ) -> Dict[str, Any]:
-        now_iso = datetime.now(timezone.utc).isoformat()
+    ) -> dict[str, Any]:
+        now_iso = datetime.now(UTC).isoformat()
 
         async def _create():
             conn = await self._get_conn()
@@ -656,10 +655,10 @@ class PostgresMetadataRepository:
         analysis_id: str,
         status: str,
         progress_percent: int,
-        current_step: Optional[str] = None,
-        error_code: Optional[str] = None,
-        error_message: Optional[str] = None,
-        completed_at: Optional[str] = None
+        current_step: str | None = None,
+        error_code: str | None = None,
+        error_message: str | None = None,
+        completed_at: str | None = None
     ) -> None:
         async def _update():
             conn = await self._get_conn()
@@ -695,7 +694,7 @@ class PostgresMetadataRepository:
         analysis_id: str,
         reviewer_adjusted_coverage_percent: float,
         reviewed_findings_count: int,
-        notes: Optional[str] = None
+        notes: str | None = None
     ) -> None:
         async def _update():
             conn = await self._get_conn()
@@ -713,7 +712,7 @@ class PostgresMetadataRepository:
 
         self._run_async(_update())
 
-    def get_analysis(self, analysis_id: str) -> Optional[Dict[str, Any]]:
+    def get_analysis(self, analysis_id: str) -> dict[str, Any] | None:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -751,8 +750,8 @@ class PostgresMetadataRepository:
         return self._run_async(_get())
 
     def list_analyses(
-        self, owner_user_id: Optional[str] = None, limit: int = 50, offset: int = 0
-    ) -> Tuple[List[Dict[str, Any]], int]:
+        self, owner_user_id: str | None = None, limit: int = 50, offset: int = 0
+    ) -> tuple[list[dict[str, Any]], int]:
         async def _list():
             conn = await self._get_conn()
             try:
@@ -830,12 +829,12 @@ class PostgresMetadataRepository:
         self,
         analysis_id: str,
         overall_lexical_cov: float,
-        findings: List[Any],
-        sources: List[Any],
-        candidate_metadata: Optional[Dict[str, Any]] = None,
+        findings: list[Any],
+        sources: list[Any],
+        candidate_metadata: dict[str, Any] | None = None,
         overall_semantic_cov: float = 0.0,
-        net_adjusted_score: Optional[float] = None,
-        hybrid_evidence_cov: Optional[float] = None
+        net_adjusted_score: float | None = None,
+        hybrid_evidence_cov: float | None = None
     ) -> None:
         async def _save():
             conn = await self._get_conn()
@@ -906,7 +905,7 @@ class PostgresMetadataRepository:
 
         self._run_async(_save())
 
-    def get_analysis_findings(self, analysis_id: str) -> List[Dict[str, Any]]:
+    def get_analysis_findings(self, analysis_id: str) -> list[dict[str, Any]]:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -946,7 +945,7 @@ class PostgresMetadataRepository:
 
         return self._run_async(_get())
 
-    def get_analysis_sources(self, analysis_id: str) -> List[Dict[str, Any]]:
+    def get_analysis_sources(self, analysis_id: str) -> list[dict[str, Any]]:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -971,7 +970,7 @@ class PostgresMetadataRepository:
 
         return self._run_async(_get())
 
-    def get_finding(self, finding_id: str) -> Optional[Dict[str, Any]]:
+    def get_finding(self, finding_id: str) -> dict[str, Any] | None:
         async def _get():
             conn = await self._get_conn()
             try:
@@ -1004,8 +1003,8 @@ class PostgresMetadataRepository:
         return self._run_async(_get())
 
     def update_finding_review(
-        self, finding_id: str, decision: str, notes: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        self, finding_id: str, decision: str, notes: str | None = None
+    ) -> dict[str, Any] | None:
         async def _update():
             conn = await self._get_conn()
             try:
@@ -1058,7 +1057,7 @@ class PostgresMetadataRepository:
         return self._run_async(_reconcile())
 
 
-_pg_repo_instance: Optional[PostgresMetadataRepository] = None
+_pg_repo_instance: PostgresMetadataRepository | None = None
 
 
 def get_pg_repo() -> PostgresMetadataRepository:

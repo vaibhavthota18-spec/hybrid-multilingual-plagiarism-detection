@@ -2,9 +2,8 @@
 Unit Tests for Configuration, Environment, and Production Guardrails
 """
 
-import os
 import pytest
-from pydantic import ValidationError
+
 from plagiarism.core.config import Settings, get_settings
 
 

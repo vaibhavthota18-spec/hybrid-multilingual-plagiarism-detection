@@ -3,7 +3,7 @@ Redis and Python RQ Queue Configuration
 """
 
 import logging
-from typing import Optional
+
 from plagiarism.core.config import get_settings
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ def get_redis_connection():
     return _redis_client
 
 
-def get_queue(name: Optional[str] = None):
+def get_queue(name: str | None = None):
     """Returns an RQ Queue instance connected to Redis."""
     try:
         from rq import Queue

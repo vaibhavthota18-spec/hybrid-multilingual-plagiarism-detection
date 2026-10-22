@@ -2,20 +2,18 @@
 Unit Tests for Error Handling and RFC 7807 ErrorEnvelope Serializer
 """
 
-import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from plagiarism.core.errors import (
     AppError,
+    ConflictError,
+    ErrorBody,
+    ErrorEnvelope,
+    ForbiddenError,
     NotFoundError,
     UnauthorizedError,
-    ForbiddenError,
-    ConflictError,
     ValidationError,
-    ErrorEnvelope,
-    ErrorBody,
-    create_error_response,
     app_error_handler,
 )
 

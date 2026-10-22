@@ -5,11 +5,12 @@ Adheres to Phase 4 requirements: local inference, intfloat/multilingual-e5-small
 E5 query/passage prefixes, L2 normalization, deterministic evaluation.
 """
 
-from abc import ABC, abstractmethod
 import logging
 import os
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import numpy as np
 import torch
 
@@ -24,17 +25,17 @@ class SemanticEmbeddingProvider(ABC):
     """
 
     @abstractmethod
-    def encode_queries(self, texts: List[str], batch_size: int = 32) -> np.ndarray:
+    def encode_queries(self, texts: list[str], batch_size: int = 32) -> np.ndarray:
         """Encode query texts (submission passages) using model query format."""
         pass
 
     @abstractmethod
-    def encode_passages(self, texts: List[str], batch_size: int = 32) -> np.ndarray:
+    def encode_passages(self, texts: list[str], batch_size: int = 32) -> np.ndarray:
         """Encode reference passage texts using model passage format."""
         pass
 
     @abstractmethod
-    def get_model_info(self) -> Dict[str, Any]:
+    def get_model_info(self) -> dict[str, Any]:
         """Return model metadata (id, revision, dimension, device)."""
         pass
 
@@ -46,10 +47,10 @@ class LocalSentenceTransformerProvider(SemanticEmbeddingProvider):
 
     def __init__(
         self,
-        model_name: Optional[str] = None,
-        revision: Optional[str] = None,
-        cache_dir: Optional[Path] = None,
-        device: Optional[str] = None,
+        model_name: str | None = None,
+        revision: str | None = None,
+        cache_dir: Path | None = None,
+        device: str | None = None,
     ):
         settings = get_settings()
         self.model_name = model_name or settings.SEMANTIC_MODEL_NAME
@@ -125,7 +126,7 @@ class LocalSentenceTransformerProvider(SemanticEmbeddingProvider):
                     f"Semantic model loading failure. Ensure offline assets are prepared using scripts/prepare-offline-demo.ps1: {e}"
                 ) from e
 
-    def get_model_info(self) -> Dict[str, Any]:
+    def get_model_info(self) -> dict[str, Any]:
         """Returns model descriptor metadata."""
         settings = get_settings()
         return {
@@ -146,7 +147,7 @@ class LocalSentenceTransformerProvider(SemanticEmbeddingProvider):
             "translation_threshold": settings.SEMANTIC_TRANSLATION_THRESHOLD,
         }
 
-    def encode_queries(self, texts: List[str], batch_size: int = 32) -> np.ndarray:
+    def encode_queries(self, texts: list[str], batch_size: int = 32) -> np.ndarray:
         """
         Encodes query texts with E5 prefix 'query: ' and L2 normalization.
         """
@@ -170,7 +171,7 @@ class LocalSentenceTransformerProvider(SemanticEmbeddingProvider):
 
         return embeddings.astype(np.float32)
 
-    def encode_passages(self, texts: List[str], batch_size: int = 32) -> np.ndarray:
+    def encode_passages(self, texts: list[str], batch_size: int = 32) -> np.ndarray:
         """
         Encodes reference passages with E5 prefix 'passage: ' and L2 normalization.
         """
@@ -195,7 +196,7 @@ class LocalSentenceTransformerProvider(SemanticEmbeddingProvider):
 
 
 # Singleton instance for process-level model sharing
-_provider_instance: Optional[SemanticEmbeddingProvider] = None
+_provider_instance: SemanticEmbeddingProvider | None = None
 
 
 def get_embedding_provider() -> SemanticEmbeddingProvider:
@@ -206,7 +207,7 @@ def get_embedding_provider() -> SemanticEmbeddingProvider:
     return _provider_instance
 
 
-def reset_embedding_provider_for_test(mock_provider: Optional[SemanticEmbeddingProvider] = None) -> None:
+def reset_embedding_provider_for_test(mock_provider: SemanticEmbeddingProvider | None = None) -> None:
     """Allows test fixtures to inject mock providers."""
     global _provider_instance
     _provider_instance = mock_provider

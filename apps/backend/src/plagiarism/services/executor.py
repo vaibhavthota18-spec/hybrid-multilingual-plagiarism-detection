@@ -7,7 +7,6 @@ Manages job lifecycle: queued -> processing -> completed / failed.
 import concurrent.futures
 import logging
 from pathlib import Path
-from typing import Optional
 
 from plagiarism.services.extractors import extract_document
 from plagiarism.services.preprocessing import preprocess_text
@@ -35,7 +34,7 @@ class LocalProcessingExecutor:
         document_id: str,
         storage_path: str,
         extension: str,
-        language_hint: Optional[str] = "auto"
+        language_hint: str | None = "auto"
     ) -> None:
         """
         Processes document synchronously. Used for tests and deterministic flows.
@@ -117,7 +116,7 @@ class LocalProcessingExecutor:
         document_id: str,
         storage_path: str,
         extension: str,
-        language_hint: Optional[str] = "auto"
+        language_hint: str | None = "auto"
     ) -> None:
         """Submits document extraction job to RQ queue in production, or thread pool in local mode."""
         from plagiarism.core.config import get_settings
@@ -125,9 +124,10 @@ class LocalProcessingExecutor:
 
         if getattr(settings, "APP_RUNTIME_MODE", "local") == "production":
             try:
+                from rq import Retry
+
                 from plagiarism.jobs.queue import get_queue
                 from plagiarism.jobs.tasks import process_document_job
-                from rq import Retry
 
                 q = get_queue()
                 job = q.enqueue(
@@ -160,9 +160,9 @@ class LocalProcessingExecutor:
         submission_document_id: str,
         mode: str,
         detection_mode: str = "hybrid",
-        reference_document_id: Optional[str] = None,
-        reference_document_ids: Optional[list] = None,
-        collection_id: Optional[str] = None,
+        reference_document_id: str | None = None,
+        reference_document_ids: list | None = None,
+        collection_id: str | None = None,
     ) -> None:
         """Submits similarity analysis job to RQ queue in production, or thread pool in local mode."""
         from plagiarism.core.config import get_settings
@@ -170,9 +170,10 @@ class LocalProcessingExecutor:
 
         if getattr(settings, "APP_RUNTIME_MODE", "local") == "production":
             try:
+                from rq import Retry
+
                 from plagiarism.jobs.queue import get_queue
                 from plagiarism.jobs.tasks import run_hybrid_analysis_job
-                from rq import Retry
 
                 q = get_queue()
                 job = q.enqueue(
@@ -213,7 +214,7 @@ class LocalProcessingExecutor:
         return self.executor.submit(fn, *args, **kwargs)
 
 
-_executor: Optional[LocalProcessingExecutor] = None
+_executor: LocalProcessingExecutor | None = None
 
 
 def get_executor() -> LocalProcessingExecutor:

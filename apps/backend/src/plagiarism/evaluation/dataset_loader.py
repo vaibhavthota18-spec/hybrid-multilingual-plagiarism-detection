@@ -7,7 +7,8 @@ and performs strict leakage detection across data partitions.
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any
+
 from plagiarism.evaluation.schemas import EvaluationDataset, EvaluationExample, SplitPartition
 
 
@@ -26,7 +27,7 @@ def compute_sha256(text: str) -> str:
     return hashlib.sha256(text.strip().lower().encode("utf-8")).hexdigest()
 
 
-def compute_char_ngrams(text: str, n: int = 5) -> Set[str]:
+def compute_char_ngrams(text: str, n: int = 5) -> set[str]:
     """Extracts character n-grams from normalized text."""
     clean = "".join(text.lower().split())
     if len(clean) < n:
@@ -34,7 +35,7 @@ def compute_char_ngrams(text: str, n: int = 5) -> Set[str]:
     return {clean[i:i + n] for i in range(len(clean) - n + 1)}
 
 
-def jaccard_similarity(set_a: Set[str], set_b: Set[str]) -> float:
+def jaccard_similarity(set_a: set[str], set_b: set[str]) -> float:
     """Computes Jaccard similarity between two sets."""
     if not set_a and not set_b:
         return 0.0
@@ -62,7 +63,7 @@ def validate_example_spans(example: EvaluationExample) -> None:
             )
 
 
-def validate_split_leakage(dataset: EvaluationDataset, max_ngram_jaccard: float = 0.50) -> Dict[str, Any]:
+def validate_split_leakage(dataset: EvaluationDataset, max_ngram_jaccard: float = 0.50) -> dict[str, Any]:
     """
     Validates that calibration and held-out evaluation splits share:
     - Zero identical text hashes (SHA-256)
@@ -70,8 +71,8 @@ def validate_split_leakage(dataset: EvaluationDataset, max_ngram_jaccard: float 
     - Zero excessive n-gram Jaccard overlap (leakage guard)
     - Distinct example IDs
     """
-    calib_examples: List[EvaluationExample] = []
-    eval_examples: List[EvaluationExample] = []
+    calib_examples: list[EvaluationExample] = []
+    eval_examples: list[EvaluationExample] = []
 
     for ex in dataset.examples:
         if ex.split == SplitPartition.CALIBRATION:
@@ -139,7 +140,7 @@ def load_benchmark_dataset(file_path: Path | str) -> EvaluationDataset:
     if not path.exists():
         raise FileNotFoundError(f"Benchmark dataset file not found: {path}")
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
 
     dataset = EvaluationDataset(**data)

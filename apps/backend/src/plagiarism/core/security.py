@@ -2,17 +2,14 @@
 Security Foundations: JWT Verification, Password Hashing, and RBAC Dependencies
 """
 
-import hmac
-import hashlib
-import json
-import base64
-from datetime import datetime, timedelta, timezone
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
-from fastapi import Depends, Request, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, Field
-from jose import jwt, JWTError, ExpiredSignatureError
+from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import ExpiredSignatureError, JWTError, jwt
+from pydantic import BaseModel
 
 from plagiarism.core.config import get_settings
 from plagiarism.core.errors import ForbiddenError, UnauthorizedError
@@ -25,28 +22,28 @@ class UserPrincipal(BaseModel):
     user_id: str
     email: str
     role: str = "STUDENT"
-    institution_id: Optional[str] = None
+    institution_id: str | None = None
 
 
 def create_access_token(
-    data: Dict[str, Any],
-    expires_delta: Optional[timedelta] = None
+    data: dict[str, Any],
+    expires_delta: timedelta | None = None
 ) -> str:
     """Creates a signed JWT access token using HMAC-SHA256."""
     settings = get_settings()
     to_encode = data.copy()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if expires_delta:
         expire = now + expires_delta
     else:
         expire = now + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     to_encode.update({"exp": int(expire.timestamp()), "iat": int(now.timestamp())})
-    
+
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def decode_access_token(token: str) -> Dict[str, Any]:
+def decode_access_token(token: str) -> dict[str, Any]:
     """
     Decodes and verifies a JWT token.
     Enforces algorithm pinning and expiration check.
@@ -83,7 +80,7 @@ def decode_token(token: str) -> UserPrincipal:
 
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme)
+    credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme)
 ) -> UserPrincipal:
     """
     Dependency that enforces authentication.
@@ -91,12 +88,12 @@ async def get_current_user(
     """
     if not credentials or credentials.scheme.lower() != "bearer":
         raise UnauthorizedError("Bearer authentication credentials required")
-    
+
     return decode_token(credentials.credentials)
 
 
 async def get_current_user_or_dev(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme)
+    credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme)
 ) -> UserPrincipal:
     """
     Returns authenticated UserPrincipal if bearer token provided,
@@ -114,7 +111,7 @@ async def get_current_user_or_dev(
     raise UnauthorizedError("Bearer authentication credentials required")
 
 
-def require_role(allowed_roles: List[str]) -> Callable:
+def require_role(allowed_roles: list[str]) -> Callable:
     """
     Dependency factory enforcing role-based access control (RBAC).
     """

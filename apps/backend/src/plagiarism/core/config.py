@@ -5,7 +5,7 @@ Typed Application Configuration using Pydantic Settings
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     # CORS Configuration
-    CORS_ORIGINS: List[str] = Field(
+    CORS_ORIGINS: list[str] = Field(
         default=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"],
         description="Allowed CORS origins"
     )
@@ -59,11 +59,11 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     # Database Configuration (PostgreSQL + pgvector)
-    POSTGRES_USER: Optional[str] = None
-    POSTGRES_PASSWORD: Optional[str] = None
-    POSTGRES_HOST: Optional[str] = None
+    POSTGRES_USER: str | None = None
+    POSTGRES_PASSWORD: str | None = None
+    POSTGRES_HOST: str | None = None
     POSTGRES_PORT: int = 5432
-    POSTGRES_DB: Optional[str] = None
+    POSTGRES_DB: str | None = None
 
     DATABASE_URL: str = Field(
         default="postgresql+asyncpg://postgres:postgres@localhost:5432/plagiarism_platform",
@@ -222,7 +222,7 @@ class Settings(BaseSettings):
         return f"Settings({redacted})"
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Returns cached application settings instance."""
     return Settings()

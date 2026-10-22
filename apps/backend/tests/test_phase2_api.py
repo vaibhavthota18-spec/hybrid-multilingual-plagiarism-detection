@@ -3,12 +3,10 @@ Integration Tests for Phase 2 API Endpoints
 Verifies /documents, /collections, and /comparisons/validate HTTP contracts and error envelopes.
 """
 
-import io
 import pytest
 from fastapi.testclient import TestClient
 
 from plagiarism.main import app
-from plagiarism.storage.local_db import get_local_repo
 
 
 @pytest.fixture

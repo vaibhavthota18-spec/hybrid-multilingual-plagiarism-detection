@@ -5,7 +5,8 @@ and reproducible evaluation reports.
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -49,7 +50,7 @@ class EvaluationExample(BaseModel):
     domain: str = Field(..., description="Knowledge domain (e.g., computer_science, climate, medicine)")
     provenance: str = Field(..., description="Dataset provenance or reference source metadata")
     split: SplitPartition = Field(..., description="Data partition: calibration or held_out_evaluation")
-    ground_truth_spans: List[GroundTruthSpan] = Field(default_factory=list, description="Ground truth suspicious spans")
+    ground_truth_spans: list[GroundTruthSpan] = Field(default_factory=list, description="Ground truth suspicious spans")
     rationale: str = Field(..., description="Detailed annotation rationale and expected detector behavior")
 
 
@@ -58,8 +59,8 @@ class EvaluationDataset(BaseModel):
     version: str = Field(..., description="Semantic version string (e.g., 1.0.0)")
     created_at: str = Field(..., description="ISO 8601 creation timestamp")
     description: str = Field(..., description="Comprehensive dataset overview and design goals")
-    languages: List[str] = Field(default_factory=lambda: ["en", "hi", "te"])
-    examples: List[EvaluationExample] = Field(..., description="List of evaluation examples")
+    languages: list[str] = Field(default_factory=lambda: ["en", "hi", "te"])
+    examples: list[EvaluationExample] = Field(..., description="List of evaluation examples")
 
 
 class PredictionSpan(BaseModel):
@@ -74,9 +75,9 @@ class PredictionResult(BaseModel):
     example_id: str
     predicted_is_plagiarism: bool
     similarity_score: float
-    predicted_spans: List[PredictionSpan] = Field(default_factory=list)
+    predicted_spans: list[PredictionSpan] = Field(default_factory=list)
     latency_ms: float
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class WilsonInterval(BaseModel):
@@ -99,10 +100,10 @@ class ClassificationMetrics(BaseModel):
     fpr: float
     fnr: float
     balanced_accuracy: float
-    confusion_matrix: Dict[str, int]
+    confusion_matrix: dict[str, int]
     precision_wilson_ci: WilsonInterval
     recall_wilson_ci: WilsonInterval
-    f1_wilson_ci: Optional[WilsonInterval] = None
+    f1_wilson_ci: WilsonInterval | None = None
 
 
 class RetrievalMetrics(BaseModel):
@@ -154,10 +155,10 @@ class EvaluationReport(BaseModel):
     detector_mode: str
     dataset_version: str
     timestamp: str
-    thresholds: Dict[str, float]
+    thresholds: dict[str, float]
     classification: ClassificationMetrics
     localization: LocalizationMetrics
-    bootstrap_ci: Dict[str, BootstrapConfidenceInterval]
-    per_language_breakdown: Dict[str, Dict[str, float]]
-    per_category_breakdown: Dict[str, Dict[str, float]]
-    error_records: List[ErrorRecord] = Field(default_factory=list)
+    bootstrap_ci: dict[str, BootstrapConfidenceInterval]
+    per_language_breakdown: dict[str, dict[str, float]]
+    per_category_breakdown: dict[str, dict[str, float]]
+    error_records: list[ErrorRecord] = Field(default_factory=list)

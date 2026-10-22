@@ -3,13 +3,14 @@ Unit and Integration Tests for System Health Probe Conformance
 Adheres to contracts/openapi.yaml /health endpoint schema
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
-from plagiarism.main import app
 from plagiarism.domain.models import HealthStatus
+from plagiarism.main import app
 
 
 @pytest.fixture

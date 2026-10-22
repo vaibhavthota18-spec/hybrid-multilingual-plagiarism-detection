@@ -4,10 +4,9 @@ Verifies sentence splitting across English, Hindi, and Telugu, code-point offset
 and short document handling.
 """
 
-import pytest
 from plagiarism.services.segmentation import (
-    split_sentences_with_offsets,
     segment_document_passages,
+    split_sentences_with_offsets,
 )
 
 

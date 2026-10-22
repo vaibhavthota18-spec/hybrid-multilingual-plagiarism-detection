@@ -5,7 +5,7 @@ Balanced Accuracy, Confusion Matrices, and Wilson Score Confidence Intervals.
 """
 
 import math
-from typing import Dict, List, Tuple
+
 from plagiarism.evaluation.schemas import ClassificationMetrics, WilsonInterval
 
 
@@ -45,8 +45,8 @@ def compute_wilson_interval(successes: int, total: int, confidence: float = 0.95
 
 
 def compute_classification_metrics(
-    y_true: List[bool],
-    y_pred: List[bool],
+    y_true: list[bool],
+    y_pred: list[bool],
     confidence_level: float = 0.95,
 ) -> ClassificationMetrics:
     """

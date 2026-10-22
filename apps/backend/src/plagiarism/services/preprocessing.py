@@ -10,7 +10,6 @@ Handles English, Hindi, and Telugu Unicode processing:
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -19,12 +18,12 @@ class PreprocessingResult:
     normalized_text: str
     detected_language: str
     token_count: int
-    tokens: List[str] = field(default_factory=list)
+    tokens: list[str] = field(default_factory=list)
     char_count: int = 0
-    warnings: List[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
 
-def identify_language(text: str, hint: Optional[str] = None) -> str:
+def identify_language(text: str, hint: str | None = None) -> str:
     """
     Lightweight baseline script-based language identifier for English, Hindi, and Telugu.
     Counts characters in respective Unicode blocks:
@@ -69,7 +68,7 @@ def identify_language(text: str, hint: Optional[str] = None) -> str:
         return "hi"
     elif telugu_count > 0:
         return "te"
-    
+
     return "en"
 
 
@@ -113,7 +112,7 @@ class OffsetMapper:
             orig_idx = min(orig_len - 1, int(round((i / norm_len) * orig_len)))
             self.norm_to_orig.append(orig_idx)
 
-    def map_normalized_span_to_original(self, start: int, end: int) -> Tuple[int, int]:
+    def map_normalized_span_to_original(self, start: int, end: int) -> tuple[int, int]:
         """
         Maps a normalized text span [start, end) to original text span [orig_start, orig_end).
         """
@@ -122,13 +121,13 @@ class OffsetMapper:
                 max(0, min(len(self.original_text), start)),
                 max(0, min(len(self.original_text), end))
             )
-        
+
         orig_start = self.norm_to_orig[start] if start < len(self.norm_to_orig) else len(self.original_text)
         orig_end = self.norm_to_orig[end - 1] + 1 if (end - 1) < len(self.norm_to_orig) else len(self.original_text)
         return (max(0, orig_start), min(len(self.original_text), max(orig_start, orig_end)))
 
 
-def tokenize_unicode(text: str) -> List[str]:
+def tokenize_unicode(text: str) -> list[str]:
     """
     Unicode-aware tokenizer supporting English, Hindi, and Telugu word boundary extraction.
     Captures entire Indic words including matras, viramas, and anusvaras without splitting.
@@ -152,7 +151,7 @@ def code_point_to_utf16_offset(text: str, code_point_offset: int) -> int:
 
 def preprocess_text(
     raw_text: str,
-    language_hint: Optional[str] = "auto"
+    language_hint: str | None = "auto"
 ) -> PreprocessingResult:
     """
     Executes full multilingual preprocessing pipeline on raw extracted text.

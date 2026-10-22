@@ -4,7 +4,8 @@ Validates submission and reference documents for Direct, One-to-Many, and Corpus
 Enforces Phase 2 boundaries: verifies readiness without executing Phase 3 similarity analysis.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
 
@@ -18,9 +19,9 @@ router = APIRouter(prefix="/comparisons", tags=["Comparisons"])
 class ValidateComparisonRequest(BaseModel):
     submission_document_id: str = Field(..., description="ID of candidate submission document")
     mode: str = Field(..., description="Comparison mode: 'direct', 'one_to_many', or 'corpus'")
-    reference_document_id: Optional[str] = Field(None, description="Required for 'direct' mode")
-    reference_document_ids: Optional[List[str]] = Field(None, description="Required for 'one_to_many' mode")
-    collection_id: Optional[str] = Field(None, description="Required for 'corpus' mode")
+    reference_document_id: str | None = Field(None, description="Required for 'direct' mode")
+    reference_document_ids: list[str] | None = Field(None, description="Required for 'one_to_many' mode")
+    collection_id: str | None = Field(None, description="Required for 'corpus' mode")
 
 
 @router.post(
@@ -32,7 +33,7 @@ class ValidateComparisonRequest(BaseModel):
 async def validate_comparison_inputs(
     request: ValidateComparisonRequest,
     user: UserPrincipal = Depends(get_current_user_or_dev)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Validates selected submission and reference inputs across comparison modes:
     - Direct (1:1)
@@ -61,7 +62,7 @@ async def validate_comparison_inputs(
     if mode == "direct":
         if not request.reference_document_id:
             raise BadRequestError("Direct comparison mode requires 'reference_document_id'", code="MISSING_REFERENCE")
-        
+
         if request.reference_document_id == request.submission_document_id:
             raise BadRequestError("Submission document and reference document cannot be the identical file", code="SELF_COMPARISON")
 

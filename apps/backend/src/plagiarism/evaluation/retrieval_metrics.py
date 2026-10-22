@@ -4,12 +4,13 @@ Calculates Recall@1, Recall@5, Recall@10, Mean Reciprocal Rank (MRR),
 Mean Average Precision (MAP), and retrieval latency across candidate pools.
 """
 
-from typing import Any, Dict, List
+from typing import Any
+
 from plagiarism.evaluation.schemas import RetrievalMetrics
 
 
 def compute_retrieval_metrics(
-    query_results: List[Dict[str, Any]],
+    query_results: list[dict[str, Any]],
     candidate_pool_size: int,
 ) -> RetrievalMetrics:
     """

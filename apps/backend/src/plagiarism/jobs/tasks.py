@@ -3,14 +3,14 @@ Deterministic background worker tasks for infrastructure verification
 Phase 1 Scope: Testing worker queue execution without plagiarism analysis algorithms
 """
 
-import os
 import hashlib
+import os
 import time
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 
-def ping_job(message: str = "ping", echo: Optional[str] = None) -> Dict[str, Any]:
+def ping_job(message: str = "ping", echo: str | None = None) -> dict[str, Any]:
     """
     Deterministic probe task to verify Redis queue enqueue, worker dequeue, and execution.
     Returns payload echo, pid, timestamp, and sha256 checksum.
@@ -18,20 +18,20 @@ def ping_job(message: str = "ping", echo: Optional[str] = None) -> Dict[str, Any
     payload_text = echo if echo is not None else message
     start_time = time.time()
     checksum = hashlib.sha256(payload_text.encode("utf-8")).hexdigest()
-    
+
     return {
         "status": "pong",
         "echo": payload_text,
         "input_message": payload_text,
         "checksum": checksum,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "executed_at": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
+        "executed_at": datetime.now(UTC).isoformat(),
         "worker_pid": os.getpid(),
         "duration_seconds": round(time.time() - start_time, 6)
     }
 
 
-def simulate_calculation(a: float, b: float, operation: str = "add") -> Dict[str, Any]:
+def simulate_calculation(a: float, b: float, operation: str = "add") -> dict[str, Any]:
     """
     Deterministic calculation task validating worker math operations and error handling.
     """
@@ -61,8 +61,8 @@ def process_document_job(
     document_id: str,
     storage_path: str,
     extension: str,
-    language_hint: Optional[str] = "auto"
-) -> Dict[str, Any]:
+    language_hint: str | None = "auto"
+) -> dict[str, Any]:
     """
     Production background worker task for document extraction and passage segmentation.
     Executes in unprivileged worker process reading shared persistent storage.
@@ -78,7 +78,7 @@ def process_document_job(
     return {
         "status": "completed",
         "document_id": document_id,
-        "completed_at": datetime.now(timezone.utc).isoformat()
+        "completed_at": datetime.now(UTC).isoformat()
     }
 
 
@@ -88,10 +88,10 @@ def run_hybrid_analysis_job(
     submission_document_id: str,
     mode: str,
     detection_mode: str = "hybrid",
-    reference_document_id: Optional[str] = None,
-    reference_document_ids: Optional[List[str]] = None,
-    collection_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    reference_document_id: str | None = None,
+    reference_document_ids: list[str] | None = None,
+    collection_id: str | None = None,
+) -> dict[str, Any]:
     """
     Production background worker task for lexical, semantic, and hybrid similarity analysis.
     Executes Winnowing k-gram hashing, BM25 retrieval, and dense E5 embedding cosine comparisons.
@@ -111,6 +111,6 @@ def run_hybrid_analysis_job(
     return {
         "status": "completed",
         "analysis_id": analysis_id,
-        "completed_at": datetime.now(timezone.utc).isoformat()
+        "completed_at": datetime.now(UTC).isoformat()
     }
 

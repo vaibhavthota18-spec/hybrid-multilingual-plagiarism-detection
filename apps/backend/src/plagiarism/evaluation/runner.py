@@ -5,38 +5,34 @@ performs calibration sweeps on calibration partitions, tests frozen thresholds o
 and generates standardized evaluation reports with error taxonomies.
 """
 
-from datetime import datetime, timezone
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from datetime import UTC, datetime
+from typing import Any
+
 import numpy as np
 
+from plagiarism.evaluation.classification_metrics import compute_classification_metrics
+from plagiarism.evaluation.localization_metrics import (
+    compute_localization_metrics,
+)
+from plagiarism.evaluation.retrieval_metrics import compute_retrieval_metrics
 from plagiarism.evaluation.schemas import (
-    BootstrapConfidenceInterval,
-    ClassificationMetrics,
     ErrorRecord,
     EvaluationDataset,
     EvaluationExample,
     EvaluationReport,
-    LocalizationMetrics,
     PlagiarismCategory,
     PredictionResult,
     PredictionSpan,
     RetrievalMetrics,
     SplitPartition,
 )
-from plagiarism.evaluation.classification_metrics import compute_classification_metrics
-from plagiarism.evaluation.retrieval_metrics import compute_retrieval_metrics
-from plagiarism.evaluation.localization_metrics import (
-    compute_interval_overlap,
-    compute_localization_metrics,
-    compute_span_iou,
-)
 from plagiarism.evaluation.statistical import compute_bootstrap_ci
-from plagiarism.services.lexical.tokenizer import LexicalTokenizer
-from plagiarism.services.lexical.winnowing import WinnowingEngine
 from plagiarism.services.lexical.aligner import PassageAligner
 from plagiarism.services.lexical.coverage import merge_token_intervals
-from plagiarism.services.semantic.provider import get_embedding_provider, SemanticEmbeddingProvider
+from plagiarism.services.lexical.tokenizer import LexicalTokenizer
+from plagiarism.services.lexical.winnowing import WinnowingEngine
+from plagiarism.services.semantic.provider import SemanticEmbeddingProvider, get_embedding_provider
 
 
 class EvaluationRunner:
@@ -49,17 +45,17 @@ class EvaluationRunner:
 
     def __init__(
         self,
-        provider: Optional[SemanticEmbeddingProvider] = None,
-        tokenizer: Optional[LexicalTokenizer] = None,
-        winnowing: Optional[WinnowingEngine] = None,
-        aligner: Optional[PassageAligner] = None,
+        provider: SemanticEmbeddingProvider | None = None,
+        tokenizer: LexicalTokenizer | None = None,
+        winnowing: WinnowingEngine | None = None,
+        aligner: PassageAligner | None = None,
     ):
         self.tokenizer = tokenizer or LexicalTokenizer()
         self.winnowing = winnowing or WinnowingEngine(k=25, w=16)
         self.aligner = aligner or PassageAligner(min_token_match=8, min_char_length=25)
         self.provider = provider or get_embedding_provider()
-        self._query_cache: Dict[str, np.ndarray] = {}
-        self._passage_cache: Dict[str, np.ndarray] = {}
+        self._query_cache: dict[str, np.ndarray] = {}
+        self._passage_cache: dict[str, np.ndarray] = {}
 
     def get_query_embedding(self, text: str) -> np.ndarray:
         if text not in self._query_cache:
@@ -75,8 +71,8 @@ class EvaluationRunner:
         self,
         example: EvaluationExample,
         mode: str,
-        thresholds: Dict[str, float],
-    ) -> Tuple[PredictionResult, Dict[str, Any]]:
+        thresholds: dict[str, float],
+    ) -> tuple[PredictionResult, dict[str, Any]]:
         """
         Runs detection for a single EvaluationExample under the specified mode and thresholds.
         Returns the PredictionResult and intermediate localization data.
@@ -90,9 +86,9 @@ class EvaluationRunner:
 
         predicted_is_plag = False
         similarity_score = 0.0
-        predicted_spans: List[PredictionSpan] = []
-        pred_char_spans: List[Tuple[int, int]] = []
-        pred_token_spans: List[Tuple[int, int]] = []
+        predicted_spans: list[PredictionSpan] = []
+        pred_char_spans: list[tuple[int, int]] = []
+        pred_token_spans: list[tuple[int, int]] = []
 
         sub_tokens = self.tokenizer.tokenize(sub_text)
         src_tokens = self.tokenizer.tokenize(src_text)
@@ -104,7 +100,7 @@ class EvaluationRunner:
         hybrid_thresh = thresholds.get("hybrid_score_threshold", 25.0)
 
         lex_cov = 0.0
-        lex_matched_spans: List[Tuple[int, int]] = []
+        lex_matched_spans: list[tuple[int, int]] = []
 
         # 1. Lexical Pipeline Execution
         if mode in ("lexical", "hybrid"):
@@ -218,9 +214,9 @@ class EvaluationRunner:
 
     def calibrate_thresholds(
         self,
-        calibration_examples: List[EvaluationExample],
+        calibration_examples: list[EvaluationExample],
         mode: str,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Determines optimal thresholds via deterministic sweep on calibration partition.
         Maximizes F1 score while constraining false positive rate (FPR <= 0.08).
@@ -300,7 +296,7 @@ class EvaluationRunner:
 
     def run_retrieval_benchmark(
         self,
-        examples: List[EvaluationExample],
+        examples: list[EvaluationExample],
         mode: str = "hybrid",
     ) -> RetrievalMetrics:
         """
@@ -361,10 +357,10 @@ class EvaluationRunner:
 
     def evaluate_split(
         self,
-        examples: List[EvaluationExample],
+        examples: list[EvaluationExample],
         mode: str,
-        thresholds: Dict[str, float],
-    ) -> Tuple[List[PredictionResult], List[dict], List[ErrorRecord]]:
+        thresholds: dict[str, float],
+    ) -> tuple[list[PredictionResult], list[dict], list[ErrorRecord]]:
         """
         Evaluates an entire dataset partition, recording predictions, localization, and error taxonomies.
         """
@@ -432,7 +428,7 @@ class EvaluationRunner:
         dataset: EvaluationDataset,
         mode: str,
         split: SplitPartition,
-        thresholds: Optional[Dict[str, float]] = None,
+        thresholds: dict[str, float] | None = None,
     ) -> EvaluationReport:
         """
         Executes a complete standardized evaluation run over a designated split.
@@ -472,8 +468,8 @@ class EvaluationRunner:
         boot_rec = compute_bootstrap_ci(y_true, y_pred, rec_func, "recall", n_resamples=1000, random_seed=42)
 
         # Per-language pair breakdown
-        per_lang: Dict[str, Dict[str, float]] = {}
-        lang_groups: Dict[str, List[int]] = {}
+        per_lang: dict[str, dict[str, float]] = {}
+        lang_groups: dict[str, list[int]] = {}
         for idx, ex in enumerate(examples):
             lp = f"{ex.suspicious_language}-{ex.source_language}"
             lang_groups.setdefault(lp, []).append(idx)
@@ -490,8 +486,8 @@ class EvaluationRunner:
             }
 
         # Per-category breakdown
-        per_cat: Dict[str, Dict[str, float]] = {}
-        cat_groups: Dict[str, List[int]] = {}
+        per_cat: dict[str, dict[str, float]] = {}
+        cat_groups: dict[str, list[int]] = {}
         for idx, ex in enumerate(examples):
             cat = ex.plagiarism_type.value
             cat_groups.setdefault(cat, []).append(idx)
@@ -511,7 +507,7 @@ class EvaluationRunner:
             split_name=split.value,
             detector_mode=mode,
             dataset_version=dataset.version,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             thresholds=active_thresholds,
             classification=cls_metrics,
             localization=loc_metrics,

@@ -4,11 +4,11 @@ Calculates token-level and character-level IoU (Intersection-over-Union),
 Span Precision, Span Recall, Span F1, and mean boundary error on Unicode offsets.
 """
 
-from typing import List, Tuple
+
 from plagiarism.evaluation.schemas import LocalizationMetrics
 
 
-def merge_intervals(intervals: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+def merge_intervals(intervals: list[tuple[int, int]]) -> list[tuple[int, int]]:
     """
     Merges overlapping or contiguous integer intervals.
     """
@@ -26,9 +26,9 @@ def merge_intervals(intervals: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
 
 
 def compute_interval_overlap(
-    set_a: List[Tuple[int, int]],
-    set_b: List[Tuple[int, int]],
-) -> Tuple[int, int, int]:
+    set_a: list[tuple[int, int]],
+    set_b: list[tuple[int, int]],
+) -> tuple[int, int, int]:
     """
     Given two lists of intervals, computes:
     - intersection_len
@@ -53,8 +53,8 @@ def compute_interval_overlap(
 
 
 def compute_span_iou(
-    gt_intervals: List[Tuple[int, int]],
-    pred_intervals: List[Tuple[int, int]],
+    gt_intervals: list[tuple[int, int]],
+    pred_intervals: list[tuple[int, int]],
 ) -> float:
     """
     Computes Intersection-over-Union (IoU) between ground-truth and predicted intervals.
@@ -67,8 +67,8 @@ def compute_span_iou(
 
 
 def compute_boundary_error(
-    gt_intervals: List[Tuple[int, int]],
-    pred_intervals: List[Tuple[int, int]],
+    gt_intervals: list[tuple[int, int]],
+    pred_intervals: list[tuple[int, int]],
 ) -> float:
     """
     Computes average boundary deviation (start error + end error) in characters
@@ -91,7 +91,7 @@ def compute_boundary_error(
 
 
 def compute_localization_metrics(
-    eval_cases: List[dict],
+    eval_cases: list[dict],
 ) -> LocalizationMetrics:
     """
     Aggregates localization metrics across all positive evaluation cases.

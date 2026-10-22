@@ -6,16 +6,16 @@ while preserving exact Unicode code-point offsets into the original text.
 """
 
 import logging
-from typing import List, Optional, Tuple
+
 from transformers import AutoTokenizer
 
 from plagiarism.core.config import get_settings
+from plagiarism.services.preprocessing import normalize_nfc
 from plagiarism.services.segmentation import (
     SegmentedPassage,
     segment_document_passages,
     split_sentences_with_offsets,
 )
-from plagiarism.services.preprocessing import normalize_text_nfc, normalize_nfc
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +27,9 @@ class ModelAwareSegmenter:
 
     def __init__(
         self,
-        tokenizer_name: Optional[str] = None,
+        tokenizer_name: str | None = None,
         max_tokens: int = 500,
-        cache_dir: Optional[str] = None,
+        cache_dir: str | None = None,
     ):
         settings = get_settings()
         self.tokenizer_name = tokenizer_name or settings.SEMANTIC_MODEL_NAME
@@ -46,7 +46,7 @@ class ModelAwareSegmenter:
                 use_fast=True,
                 local_files_only=True,
             )
-        except Exception as offline_err:
+        except Exception:
             try:
                 self._tokenizer = AutoTokenizer.from_pretrained(
                     self.tokenizer_name,
@@ -70,9 +70,9 @@ class ModelAwareSegmenter:
         self,
         document_id: str,
         original_text: str,
-        existing_passages: Optional[List[SegmentedPassage]] = None,
+        existing_passages: list[SegmentedPassage] | None = None,
         detected_language: str = "en",
-    ) -> List[SegmentedPassage]:
+    ) -> list[SegmentedPassage]:
         """
         Takes raw text or existing Phase 2 passages and ensures all chunks strictly obey
         the embedding model sequence length. Sub-divides oversized chunks at sentence boundaries.
@@ -92,7 +92,7 @@ class ModelAwareSegmenter:
                 min_tokens_per_passage=10,
             )
 
-        final_passages: List[SegmentedPassage] = []
+        final_passages: list[SegmentedPassage] = []
         seq_idx = 0
 
         for p in base_passages:
@@ -105,7 +105,7 @@ class ModelAwareSegmenter:
             else:
                 # Oversized passage: sub-divide along sentence boundaries
                 sentences = split_sentences_with_offsets(p.text_content)
-                current_chunk_sentences: List[str] = []
+                current_chunk_sentences: list[str] = []
                 current_start = p.start_offset
                 current_end = p.start_offset
 

@@ -2,20 +2,19 @@
 Unit Tests for Security, JWT Cryptography, and Role-Based Access Control (RBAC)
 """
 
-import time
-import pytest
-from datetime import datetime, timedelta, timezone
-from jose import jwt
-from fastapi.testclient import TestClient
+from datetime import UTC, datetime, timedelta
 
-from plagiarism.main import app
-from plagiarism.core.config import get_settings
+import pytest
+from fastapi.testclient import TestClient
+from jose import jwt
+
+from plagiarism.core.errors import UnauthorizedError
 from plagiarism.core.security import (
+    UserPrincipal,
     create_access_token,
     decode_token,
-    UserPrincipal,
 )
-from plagiarism.core.errors import UnauthorizedError, ForbiddenError
+from plagiarism.main import app
 
 
 @pytest.fixture
@@ -61,7 +60,7 @@ def test_jwt_invalid_signature_rejection():
         "sub": "tampered-user",
         "user_id": "tampered-user",
         "role": "ADMIN",
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=10)
+        "exp": datetime.now(UTC) + timedelta(minutes=10)
     }
     fraudulent_token = jwt.encode(payload, "fraudulent_foreign_secret_key_32_bytes_long", algorithm="HS256")
 
@@ -71,10 +70,8 @@ def test_jwt_invalid_signature_rejection():
 
 def test_jwt_algorithm_pinning():
     """Verify tokens attempting algorithm tampering (e.g. 'none' algorithm) are rejected."""
-    header = {"alg": "none", "typ": "JWT"}
-    claims = {"sub": "attacker", "user_id": "attacker", "role": "ADMIN"}
     # Construct unsigned token with none algorithm
-    tampered_token = f"eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhdHRhY2tlciIsInVzZXJfaWQiOiJhdHRhY2tlciIsInJvbGUiOiJBRE1JTiJ9."
+    tampered_token = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhdHRhY2tlciIsInVzZXJfaWQiOiJhdHRhY2tlciIsInJvbGUiOiJBRE1JTiJ9."
 
     with pytest.raises(UnauthorizedError):
         decode_token(tampered_token)

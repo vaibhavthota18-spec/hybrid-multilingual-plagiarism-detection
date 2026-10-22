@@ -77,7 +77,7 @@ jobs:
         working-directory: apps/backend
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
+          pip install -e ".[dev]"
           pip install pytest pytest-asyncio httpx ruff
 
       - name: Lint Code with Ruff
@@ -93,6 +93,7 @@ jobs:
           POSTGRES_DB: plagiarism_test
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password_secure_123
+          DATABASE_URL: postgresql+asyncpg://test_user:test_password_secure_123@localhost:5432/plagiarism_test
           JWT_SECRET_KEY: test_super_secure_jwt_secret_key_minimum_32_characters_long_for_security
         run: |
           alembic upgrade head
@@ -100,13 +101,16 @@ jobs:
       - name: Run Backend Pytest Suite
         working-directory: apps/backend
         env:
+          APP_RUNTIME_MODE: local
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_DB: plagiarism_test
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password_secure_123
+          DATABASE_URL: postgresql+asyncpg://test_user:test_password_secure_123@localhost:5432/plagiarism_test
           REDIS_HOST: localhost
           REDIS_PORT: 6379
+          REDIS_URL: redis://localhost:6379/0
           JWT_SECRET_KEY: test_super_secure_jwt_secret_key_minimum_32_characters_long_for_security
           ENVIRONMENT: testing
         run: |
